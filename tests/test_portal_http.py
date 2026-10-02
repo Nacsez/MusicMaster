@@ -260,8 +260,8 @@ class PortalHttpTests(unittest.TestCase):
             ):
                 status, _, body = self._json_post("/api/open-folder", {"path": str(selected)})
                 self.assertEqual(status, 200)
-                self.assertEqual(json.loads(body)["data"]["path"], str(selected))
-                reveal.assert_called_once_with(selected)
+                self.assertEqual(json.loads(body)["data"]["path"], str(selected.resolve()))
+                reveal.assert_called_once_with(selected.resolve())
         with mock.patch("music_mastering_tools.portal.show_in_folder") as reveal:
             status, _, _ = self._json_post(
                 "/api/open-folder", {"path": str(root / "unselected folder")}

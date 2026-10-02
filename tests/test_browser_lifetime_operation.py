@@ -114,7 +114,7 @@ class BrowserLifetimeOperationTests(unittest.TestCase):
                 self.assertEqual(reopened.bootstrap()["catalog"]["catalog_id"], catalog_id)
                 self.assertEqual(reopened.bootstrap()["catalog"]["track_count"], 1)
                 self.assertEqual(
-                    reopened.get_preferences()["default_output_directory"], str(delivery)
+                    reopened.get_preferences()["default_output_directory"], str(delivery.resolve())
                 )
             finally:
                 reopened.close(wait=True)

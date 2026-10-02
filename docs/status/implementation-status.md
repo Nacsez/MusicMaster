@@ -31,6 +31,21 @@ candidate excludes personal audio, catalogs, logs, workspaces, and generated
 executables. CI builds and verifies the application, retaining selected
 diagnostic reports; it does not upload executable or workspace archives.
 
+Initial source publication is
+[`00ae1d9`](https://github.com/Nacsez/MusicMaster/commit/00ae1d9c1dc197684e49b7cb13adcdea03d59884),
+verified against GitHub `main`. The first
+[GitHub Windows run](https://github.com/Nacsez/MusicMaster/actions/runs/37077974920)
+passed source/privacy and static gates, then exposed five test-fixture path
+comparisons: the runner's `RUNNER~1` temporary-directory alias resolves to
+`runneradmin`. Application output already used the correct canonical path;
+the follow-up test corrections compare resolved locations. No application or
+EXE behavior changed. All **five affected tests passed** with a real Windows 8.3
+temporary-directory alias; the alias and long path resolved to the same physical
+file. Reproduction evidence is
+`artifacts/release-audit/windows-short-path-ci/verification-20261002T234005041764Z.json`
+and its JUnit report. Final source/remote verification receipts are retained in
+`artifacts/release-audit/source-publication.json`.
+
 Normal desktop launches now exit after the last workbench tab closes, allowing
 four seconds for refresh/reconnection. Separate document leases preserve other
 tabs and minimized windows. Active mastering finishes before automatic exit;

@@ -249,6 +249,10 @@ class CliRunContractTests(unittest.TestCase):
                 event_log=event_log,
                 job_id="generated-id",
             )
+            # Windows temp roots can use an 8.3 alias; the CLI canonicalizes
+            # both existing manifest files and future event-log destinations.
+            expected_manifest = manifest.resolve()
+            expected_event_log = event_log.resolve()
             stdout = io.StringIO()
 
             with (
@@ -278,8 +282,8 @@ class CliRunContractTests(unittest.TestCase):
         call = service_run.call_args
         active_job = call.args[0]
         self.assertEqual(active_job.execution.job_id, "generated-id")
-        self.assertEqual(call.kwargs["manifest_path"], manifest)
-        self.assertEqual(call.kwargs["event_log_path"], event_log)
+        self.assertEqual(call.kwargs["manifest_path"], expected_manifest)
+        self.assertEqual(call.kwargs["event_log_path"], expected_event_log)
         self.assertIn(f"Event log: {event_log}", stdout.getvalue())
 
     def test_run_uses_paths_embedded_in_resolved_configuration(self) -> None:
@@ -303,6 +307,8 @@ class CliRunContractTests(unittest.TestCase):
                 event_log=embedded_events,
                 job_id="embedded-job",
             )
+            expected_manifest = embedded_manifest.resolve()
+            expected_event_log = embedded_events.resolve()
 
             with mock.patch.object(
                 cli_runtime.MasteringService,
@@ -312,8 +318,8 @@ class CliRunContractTests(unittest.TestCase):
                 result = main(["run", str(config), "--quiet"])
 
         self.assertEqual(result, EXIT_SUCCESS)
-        self.assertEqual(service_run.call_args.kwargs["manifest_path"], embedded_manifest)
-        self.assertEqual(service_run.call_args.kwargs["event_log_path"], embedded_events)
+        self.assertEqual(service_run.call_args.kwargs["manifest_path"], expected_manifest)
+        self.assertEqual(service_run.call_args.kwargs["event_log_path"], expected_event_log)
         self.assertIsNone(service_run.call_args.kwargs["dry_run"])
 
 

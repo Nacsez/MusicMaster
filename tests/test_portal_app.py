@@ -530,7 +530,7 @@ class PortalApplicationTests(unittest.TestCase):
 
     def test_strict_preferences_persist_atomically_and_feed_job_defaults(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             workspace = root / "workspace"
             app = PortalApplication(workspace)
 
