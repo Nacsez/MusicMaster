@@ -1,0 +1,176 @@
+"""Auditable building blocks for private reference-guided music mastering."""
+
+from __future__ import annotations
+
+from importlib import metadata
+
+from .catalog import (
+    CATALOG_SCHEMA_VERSION,
+    CatalogConflictError,
+    CatalogError,
+    CatalogFormatError,
+    CatalogRole,
+    CatalogSelection,
+    CatalogStore,
+    LocationRecord,
+    LocationState,
+    ReferenceSetMember,
+    ReferenceSetRecord,
+    RunArtifactRecord,
+    RunRecord,
+    SelectedReference,
+    SelectedTrack,
+    TrackRecord,
+    default_catalog_path,
+)
+from .catalog import AudioFacts as CatalogAudioFacts
+from .catalog_integration import (
+    CatalogRecoveryResult,
+    finalize_catalog_run,
+    recover_catalog_run,
+    register_job_selection,
+    selection_with_weights,
+)
+from .config import (
+    AudioConfig,
+    DetectionConfig,
+    EdgeCasePolicy,
+    EngineKind,
+    ExecutionConfig,
+    JobConfig,
+    LimiterConfig,
+    MatchingConfig,
+    OutputMode,
+    OutputSpec,
+    PreviewConfig,
+    ReferenceSpec,
+    load_job_config,
+    save_job_config,
+)
+from .doctor import DoctorReport, run_doctor
+from .engine import (
+    EngineCapabilities,
+    NativeMasteringEngine,
+    UpstreamMatcheringEngine,
+    create_engine,
+)
+from .errors import (
+    CapabilityError,
+    ConfigError,
+    DependencyError,
+    ErrorCode,
+    ManifestError,
+    MusicMasteringError,
+    PreflightError,
+    ProcessingError,
+)
+from .events import (
+    CompositeEventSink,
+    ConsoleEventSink,
+    Event,
+    EventLevel,
+    EventSink,
+    JobEventEmitter,
+    JsonlEventSink,
+    MemoryEventSink,
+    NullEventSink,
+)
+from .manifest import (
+    ArtifactManifest,
+    FileFingerprint,
+    ManifestStore,
+    MetricManifest,
+    RunManifest,
+    RunStatus,
+    fingerprint_file,
+)
+from .service import MasteringService, RunOutcome
+from .validation import (
+    ValidationIssue,
+    ValidationReport,
+    ValidationSeverity,
+    validate_job,
+)
+
+try:
+    __version__ = metadata.version("music-mastering-tools")
+except metadata.PackageNotFoundError:
+    __version__ = "0.1.0"
+
+
+__all__ = [
+    "ArtifactManifest",
+    "AudioConfig",
+    "CATALOG_SCHEMA_VERSION",
+    "CapabilityError",
+    "CatalogAudioFacts",
+    "CatalogConflictError",
+    "CatalogError",
+    "CatalogFormatError",
+    "CatalogRole",
+    "CatalogRecoveryResult",
+    "CatalogSelection",
+    "CatalogStore",
+    "CompositeEventSink",
+    "ConfigError",
+    "ConsoleEventSink",
+    "DependencyError",
+    "DetectionConfig",
+    "DoctorReport",
+    "EdgeCasePolicy",
+    "EngineCapabilities",
+    "EngineKind",
+    "ErrorCode",
+    "Event",
+    "EventLevel",
+    "EventSink",
+    "ExecutionConfig",
+    "FileFingerprint",
+    "JobEventEmitter",
+    "JsonlEventSink",
+    "JobConfig",
+    "LimiterConfig",
+    "LocationRecord",
+    "LocationState",
+    "ManifestError",
+    "ManifestStore",
+    "MasteringService",
+    "MatchingConfig",
+    "MemoryEventSink",
+    "MetricManifest",
+    "MusicMasteringError",
+    "NativeMasteringEngine",
+    "NullEventSink",
+    "OutputMode",
+    "OutputSpec",
+    "PreflightError",
+    "ProcessingError",
+    "PreviewConfig",
+    "ReferenceSpec",
+    "ReferenceSetMember",
+    "ReferenceSetRecord",
+    "RunArtifactRecord",
+    "RunOutcome",
+    "RunRecord",
+    "RunManifest",
+    "RunStatus",
+    "SelectedReference",
+    "SelectedTrack",
+    "TrackRecord",
+    "UpstreamMatcheringEngine",
+    "ValidationIssue",
+    "ValidationReport",
+    "ValidationSeverity",
+    "__version__",
+    "create_engine",
+    "default_catalog_path",
+    "finalize_catalog_run",
+    "fingerprint_file",
+    "load_job_config",
+    "recover_catalog_run",
+    "run_doctor",
+    "save_job_config",
+    "register_job_selection",
+    "selection_with_weights",
+    "validate_job",
+]

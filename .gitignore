@@ -1,0 +1,72 @@
+# Python bytecode and interpreter caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local virtual environments
+.venv/
+venv/
+env/
+
+# Test, type-checker, linter, and coverage state
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Packaging output
+build/
+dist/
+*.egg-info/
+
+# Runtime artifacts are reproducible or job-specific and must not enter Git.
+artifacts/
+logs/
+outputs/
+scratch/
+tmp/
+.mmt-runs/
+.mmt/
+
+# Private operator state: catalog, saved jobs, run manifests, renders, and logs.
+private-workspace/
+
+# WAV fixtures are generated deterministically by scripts/generate_wav_fixtures.py.
+tests/fixtures/generated/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Preserve original upstream evidence locally; publish its recorded hashes and
+# source links rather than a duplicate archive and extraction.
+matchering-master.zip
+matchering-master/
+
+# Local assistant, cloud, and signing configuration.
+.agents/
+.codex/
+.aws/
+*.pfx
+*.p12
+*.pem
+
+# Mutable desktop state and test-ready documents belong outside source control.
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.ready.json

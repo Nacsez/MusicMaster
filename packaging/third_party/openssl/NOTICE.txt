@@ -1,0 +1,12 @@
+This distribution includes unmodified OpenSSL libraries supplied by the
+Windows CPython 3.11.7 runtime, reporting OpenSSL 3.0.11 (19 September 2023).
+
+The libraries are licensed under Apache License 2.0; the complete official
+license text is retained in LICENSE.txt. AUTHORS.md preserves the upstream
+authorship list from the exact openssl-3.0.11 source tag.
+
+Source: https://github.com/openssl/openssl/tree/openssl-3.0.11
+Windows build material: https://github.com/python/cpython-bin-deps/tree/openssl-bin-3.0.11
+
+This NOTICE is attribution added by Music Mastering Tools. It is not an
+upstream OpenSSL NOTICE file and does not modify the upstream license grant.

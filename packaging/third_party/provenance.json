@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-10-02",
+  "python_version": "3.11.7",
+  "platform": "Windows x64",
+  "python_source_url": "https://github.com/python/cpython/tree/v3.11.7",
+  "build_metadata_url": "https://raw.githubusercontent.com/python/cpython/v3.11.7/PCbuild/get_externals.bat",
+  "build_metadata_sha256": "5103fa295c9cedbfc020d2ea91f13c15e24db7e87b0ba8db8a58489ef1ca4563",
+  "runtime_observations": {
+    "openssl": "OpenSSL 3.0.11 19 Sep 2023",
+    "sqlite": "3.43.1",
+    "zlib": "1.2.13",
+    "expat": "expat_2.5.0"
+  },
+  "components": [
+    {
+      "name": "openssl",
+      "version": "3.0.11",
+      "license": "Apache-2.0",
+      "source_url": "https://github.com/openssl/openssl/tree/openssl-3.0.11",
+      "source_archive_url": "https://github.com/openssl/openssl/archive/refs/tags/openssl-3.0.11.tar.gz",
+      "windows_build_url": "https://github.com/python/cpython-bin-deps/tree/openssl-bin-3.0.11",
+      "notice_files": [
+        "openssl/LICENSE.txt",
+        "openssl/AUTHORS.md",
+        "openssl/NOTICE.txt"
+      ]
+    },
+    {
+      "name": "sqlite",
+      "version": "3.43.1",
+      "license": "Public domain",
+      "source_url": "https://www.sqlite.org/2023/sqlite-src-3430100.zip",
+      "license_url": "https://www.sqlite.org/copyright.html",
+      "notice_files": []
+    },
+    {
+      "name": "zlib",
+      "version": "1.2.13",
+      "license": "Zlib",
+      "source_url": "https://github.com/madler/zlib/tree/v1.2.13",
+      "notice_files": [
+        "zlib/LICENSE"
+      ]
+    },
+    {
+      "name": "expat",
+      "version": "2.5.0",
+      "license": "MIT",
+      "source_url": "https://github.com/python/cpython/tree/v3.11.7/Modules/expat",
+      "notice_files": [
+        "expat/COPYING"
+      ]
+    },
+    {
+      "name": "liblzma",
+      "version": "5.2.5",
+      "license": "Public domain (liblzma component)",
+      "source_url": "https://github.com/python/cpython-source-deps/tree/xz-5.2.5",
+      "upstream_source_url": "https://github.com/tukaani-project/xz/tree/v5.2.5",
+      "notice_files": [
+        "xz/COPYING"
+      ]
+    },
+    {
+      "name": "bzip2",
+      "version": "1.0.8",
+      "license": "bzip2-1.0.6",
+      "source_url": "https://github.com/python/cpython-source-deps/tree/bzip2-1.0.8",
+      "notice_files": [
+        "python/LICENSE.txt"
+      ]
+    },
+    {
+      "name": "libffi",
+      "version": "3.4.4",
+      "license": "MIT",
+      "source_url": "https://github.com/python/cpython-source-deps/tree/libffi-3.4.4",
+      "windows_build_url": "https://github.com/python/cpython-bin-deps/tree/libffi-3.4.4",
+      "notice_files": [
+        "python/LICENSE.txt"
+      ]
+    }
+  ],
+  "retained_upstream_texts": [
+    {
+      "path": "openssl/LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/openssl/openssl/openssl-3.0.11/LICENSE.txt",
+      "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+    },
+    {
+      "path": "openssl/AUTHORS.md",
+      "url": "https://raw.githubusercontent.com/openssl/openssl/openssl-3.0.11/AUTHORS.md",
+      "sha256": "5076ca441daef7fb35e904c2ac070880c7b3d58300a5a6aecac41e8f525f4412"
+    },
+    {
+      "path": "zlib/LICENSE",
+      "url": "https://raw.githubusercontent.com/madler/zlib/v1.2.13/LICENSE",
+      "sha256": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+    },
+    {
+      "path": "expat/COPYING",
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.11.7/Modules/expat/COPYING",
+      "sha256": "122f2c27000472a201d337b9b31f7eb2b52d091b02857061a8880371612d9534"
+    },
+    {
+      "path": "xz/COPYING",
+      "url": "https://raw.githubusercontent.com/tukaani-project/xz/v5.2.5/COPYING",
+      "sha256": "bcb02973ef6e87ea73d331b3a80df7748407f17efdb784b61b47e0e610d3bb5c"
+    }
+  ],
+  "observed_binary_files": [
+    {
+      "path": "python311.dll",
+      "sha256": "5ecda62f6fd2822355c560412f6d90be46a7f763f0ffeec9854177904632ac2d"
+    },
+    {
+      "path": "DLLs/libcrypto-3.dll",
+      "sha256": "2a234b5aa20c3faecf725bbb54fb33f3d94543f78fa7045408e905593e49960a"
+    },
+    {
+      "path": "DLLs/libssl-3.dll",
+      "sha256": "41ad1a04ca27a7959579e87fbbda87c93099616a64a0e66260c983381c5570d1"
+    },
+    {
+      "path": "DLLs/sqlite3.dll",
+      "sha256": "5a8d544b341f50913d4925fb1b6982cc492d9b4a4e96c0583b61de6f141f67c9"
+    },
+    {
+      "path": "DLLs/libffi-8.dll",
+      "sha256": "eff52743773eb550fcc6ce3efc37c85724502233b6b002a35496d828bd7b280a"
+    },
+    {
+      "path": "DLLs/_lzma.pyd",
+      "sha256": "64ba475a28781dca81180a1b8722a81893704f8d8fac0b022c846fdcf95b15b9"
+    },
+    {
+      "path": "DLLs/_bz2.pyd",
+      "sha256": "ab34b804da5b8e814b2178754d095a4e8aead77eefd3668da188769392cdb5f4"
+    },
+    {
+      "path": "DLLs/pyexpat.pyd",
+      "sha256": "35134cca2dcf7c2b7e592b677833322b6b72a6a88afcd3935afe5907a282e89e"
+    }
+  ],
+  "source_collection": "Source/version links and notice texts are recorded; full corresponding dependency source archives have not been collected."
+}

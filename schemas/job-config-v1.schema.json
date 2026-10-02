@@ -1,0 +1,585 @@
+{
+  "$id": "https://music-mastering-tools.invalid/schemas/job-config-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "else": {
+        "properties": {
+          "references": {
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/reference"
+                },
+                {
+                  "properties": {
+                    "frequency_weight": {
+                      "const": 1.0
+                    },
+                    "level_weight": {
+                      "const": 1.0
+                    }
+                  }
+                }
+              ]
+            },
+            "maxItems": 1
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "engine": {
+                "const": "music-mastering-tools-native"
+              }
+            },
+            "required": [
+              "engine"
+            ]
+          }
+        },
+        "required": [
+          "execution"
+        ]
+      },
+      "then": {
+        "properties": {
+          "references": {
+            "maxItems": 32
+          }
+        }
+      }
+    }
+  ],
+  "description": "Versioned mastering job contract. The schema enforces the current reference-count and weight boundary; capability-aware runtime validation is still required for advanced engine options and cross-field DSP constraints.",
+  "properties": {
+    "audio": {
+      "$ref": "#/$defs/audio"
+    },
+    "detection": {
+      "$ref": "#/$defs/detection"
+    },
+    "edge_cases": {
+      "$ref": "#/$defs/edgeCases"
+    },
+    "execution": {
+      "$ref": "#/$defs/execution"
+    },
+    "limiter": {
+      "$ref": "#/$defs/limiter"
+    },
+    "matching": {
+      "$ref": "#/$defs/matching"
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "outputs": {
+      "items": {
+        "$ref": "#/$defs/output"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "preview": {
+      "$ref": "#/$defs/preview"
+    },
+    "references": {
+      "allOf": [
+        {
+          "contains": {
+            "anyOf": [
+              {
+                "not": {
+                  "required": [
+                    "level_weight"
+                  ]
+                }
+              },
+              {
+                "properties": {
+                  "level_weight": {
+                    "exclusiveMinimum": 0
+                  }
+                },
+                "required": [
+                  "level_weight"
+                ]
+              }
+            ]
+          },
+          "minContains": 1
+        },
+        {
+          "contains": {
+            "anyOf": [
+              {
+                "not": {
+                  "required": [
+                    "frequency_weight"
+                  ]
+                }
+              },
+              {
+                "properties": {
+                  "frequency_weight": {
+                    "exclusiveMinimum": 0
+                  }
+                },
+                "required": [
+                  "frequency_weight"
+                ]
+              }
+            ]
+          },
+          "minContains": 1
+        }
+      ],
+      "description": "One reference for the default/upstream engine, or one through 32 references for the native engine. Level and frequency totals are validated independently and must each contain a positive contribution.",
+      "items": {
+        "$ref": "#/$defs/reference"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "target": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "target",
+    "references",
+    "outputs"
+  ],
+  "title": "Music Mastering Tools job configuration v1",
+  "type": "object",
+  "$defs": {
+    "audio": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_identical_target_and_reference": {
+          "default": false,
+          "type": "boolean"
+        },
+        "internal_sample_rate": {
+          "default": 44100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_length_seconds": {
+          "default": 900.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "metadata_policy": {
+          "default": "drop",
+          "enum": [
+            "drop",
+            "copy-safe"
+          ]
+        },
+        "temp_directory": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "detection": {
+      "additionalProperties": false,
+      "properties": {
+        "clipping_peak": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "clipping_samples_threshold": {
+          "default": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "limited_samples_threshold": {
+          "default": 128,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "near_silence_peak": {
+          "default": 0.0001,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "silence_peak": {
+          "default": 1e-12,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "edgeCases": {
+      "additionalProperties": false,
+      "properties": {
+        "create_output_directories": {
+          "default": true,
+          "type": "boolean"
+        },
+        "existing_output": {
+          "$ref": "#/$defs/policy"
+        },
+        "lossy_input": {
+          "$ref": "#/$defs/policy"
+        },
+        "mono_input": {
+          "$ref": "#/$defs/policy"
+        },
+        "more_than_two_channels": {
+          "$ref": "#/$defs/policy"
+        },
+        "near_silence": {
+          "$ref": "#/$defs/policy"
+        },
+        "non_finite_audio": {
+          "$ref": "#/$defs/policy"
+        },
+        "sample_rate_conversion": {
+          "$ref": "#/$defs/policy"
+        },
+        "silence": {
+          "$ref": "#/$defs/policy"
+        }
+      },
+      "type": "object"
+    },
+    "execution": {
+      "additionalProperties": false,
+      "properties": {
+        "dry_run": {
+          "default": false,
+          "type": "boolean"
+        },
+        "engine": {
+          "default": "upstream-matchering-2.0.6",
+          "description": "The upstream engine is the exact one-reference Matchering 2.0.6 compatibility path. The native engine implements the Matchering-parity weighted-profile subset for one through 32 references, independent level/frequency weights, and an optional spectral gain ceiling. Both engines require capability-aware validation.",
+          "enum": [
+            "upstream-matchering-2.0.6",
+            "music-mastering-tools-native"
+          ]
+        },
+        "event_log_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "job_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "manifest_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "max_workers": {
+          "default": 1,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "limiter": {
+      "additionalProperties": false,
+      "properties": {
+        "attack_filter_coefficient": {
+          "default": -2.0,
+          "exclusiveMaximum": 0,
+          "type": "number"
+        },
+        "attack_ms": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "external_command": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "hold_filter_coefficient": {
+          "default": 7.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "hold_filter_order": {
+          "default": 1,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "hold_ms": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "kind": {
+          "default": "hyrax",
+          "enum": [
+            "hyrax",
+            "external",
+            "none"
+          ]
+        },
+        "peak_mode": {
+          "default": "sample-peak",
+          "enum": [
+            "sample-peak",
+            "true-peak"
+          ]
+        },
+        "release_filter_coefficient": {
+          "default": 800.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "release_filter_order": {
+          "default": 1,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "release_ms": {
+          "default": 3000.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "threshold_linear": {
+          "default": 0.998138427734375,
+          "exclusiveMaximum": 1,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "true_peak_oversampling": {
+          "default": 4,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "matching": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "default": 1.0,
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fft_size": {
+          "default": 4096,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "lin_log_oversampling": {
+          "default": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "loudness_metric": {
+          "default": "matchering-loud-section-rms",
+          "enum": [
+            "matchering-loud-section-rms",
+            "ebu-r128-lufs"
+          ]
+        },
+        "lowess_delta": {
+          "default": 0.001,
+          "minimum": 0,
+          "type": "number"
+        },
+        "lowess_fraction": {
+          "default": 0.0375,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "type": "number"
+        },
+        "lowess_iterations": {
+          "default": 0,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_eq_gain_db": {
+          "default": null,
+          "oneOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "max_piece_seconds": {
+          "default": 15.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "min_value": {
+          "default": 1e-06,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "rms_correction_steps": {
+          "default": 4,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "output": {
+      "additionalProperties": false,
+      "properties": {
+        "dither": {
+          "default": "none",
+          "enum": [
+            "none",
+            "tpdf",
+            "noise-shaped"
+          ]
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mode": {
+          "default": "limited",
+          "enum": [
+            "limited",
+            "normalized-no-limiter",
+            "raw-float-no-limiter"
+          ]
+        },
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "subtype": {
+          "default": "PCM_24",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "policy": {
+      "enum": [
+        "error",
+        "warn",
+        "allow"
+      ]
+    },
+    "preview": {
+      "additionalProperties": false,
+      "properties": {
+        "analysis_step_seconds": {
+          "default": 5.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "duration_seconds": {
+          "default": 30.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "enabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "fade_coefficient": {
+          "default": 8.0,
+          "minimum": 2,
+          "type": "number"
+        },
+        "fade_seconds": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "result_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subtype": {
+          "default": "PCM_16",
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "reference": {
+      "additionalProperties": false,
+      "description": "One requested reference occurrence. Native jobs normalize level and frequency weights independently; duplicate content remains inventoried and is coalesced by SHA-256 for effective analysis.",
+      "properties": {
+        "frequency_weight": {
+          "default": 1.0,
+          "description": "Finite non-negative contribution to the Mid/Side spectral profile. Native jobs normalize this independently from level_weight. The upstream engine requires 1.0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "level_weight": {
+          "default": 1.0,
+          "description": "Finite non-negative contribution to loud-section RMS and restoration level. Native jobs normalize this independently from frequency_weight. The upstream engine requires 1.0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    }
+  }
+}

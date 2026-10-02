@@ -1,0 +1,4 @@
+# Runtime requirements. Compatibility bounds are centralized in constraints.txt.
+-c constraints.txt
+
+matchering==2.0.6

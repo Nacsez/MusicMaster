@@ -1,0 +1,21 @@
+Music Mastering Tools
+Copyright (C) 2026 Music Mastering Tools contributors
+
+Music Mastering Tools is distributed under GPL-3.0-or-later. See LICENSE.
+There is no warranty, to the extent permitted by applicable law.
+
+The one-reference engine uses Matchering 2.0.6:
+Matchering - Audio Matching and Mastering Python Library
+Copyright (C) 2016-2022 Sergree
+https://github.com/sergree/matchering
+Licensed under GNU GPL version 3 or, at your option, any later version.
+
+src/music_mastering_tools/dsp/weighted_matchering.py derives from Matchering's
+processing stages. Modifications made in July 2026 add independently weighted
+reference profiles, deterministic duplicate coalescing and ordering, structured
+processing evidence, and optional guarded equalization. The original upstream
+copyright and license grant remain applicable to the derived material.
+
+The application is an independent project; its name does not imply upstream
+endorsement. Third-party dependency licenses are retained in the Windows
+release's THIRD-PARTY-NOTICES directory and dependency-inventory.json.

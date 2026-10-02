@@ -1,0 +1,9 @@
+# Reproducible Windows x64 build toolchain (not a runtime requirement).
+pyinstaller==6.22.0
+pyinstaller-hooks-contrib==2026.8
+altgraph==0.17.5
+pefile==2024.8.26
+pywin32-ctypes==0.2.3
+packaging==26.2
+setuptools==81.0.0
+wheel==0.47.0

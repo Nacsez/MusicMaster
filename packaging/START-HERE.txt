@@ -1,0 +1,34 @@
+Music Mastering Tools - Windows quick start
+
+Requires Windows 10/11 on Intel/AMD 64-bit and a browser.
+Python and the mastering runtime are included. No installer or administrator
+rights are needed. This candidate is unsigned.
+
+1. Extract the ZIP, open the windows folder, and double-click
+   MusicMasteringTools.exe. Your default browser opens the workbench.
+2. In Library, add your own mixes and reference tracks. The application keeps
+   their locations; it does not copy your source audio into its library.
+3. In Master, choose the tracks, references, and delivery folder. Remember saves
+   that output location for future launches. Check setup, test, then render.
+4. Review masters to compare original and completed versions.
+5. Close the last workbench tab to exit. Refreshing or minimizing keeps the app
+   running. Any active render finishes safely before automatic shutdown.
+
+Your library, preferences, and logs persist separately from the executable:
+%LOCALAPPDATA%\MusicMasteringTools\workspace
+
+Each Windows account has its own library. Replacing or moving the executable
+preserves that account's library. If you move an audio file, verify/relink its
+location in Library. Show in folder opens the exact cataloged location.
+
+Session Logs are available in Activity / System. If startup fails, inspect the
+workspace logs folder. Logs can include local paths; keep them private.
+
+WAV mastering is the tested baseline. Browser playback depends on its codecs;
+some other input formats require a separately installed FFmpeg decoder.
+
+Source, library recovery, deployment, and build instructions:
+https://github.com/Nacsez/MusicMaster
+https://github.com/Nacsez/MusicMaster/blob/main/docs/user/windows-quick-start.md
+
+Keep LICENSE, NOTICE, and THIRD-PARTY-NOTICES with this supplied bundle.

@@ -1,0 +1,1311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#070709">
+  <meta name="description" content="Private localhost portal for Music Mastering Tools">
+  <title>Music Mastering Tools</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body data-app-state="loading">
+  <a class="skip-link" href="#workspace-main">Skip to workspace</a>
+
+  <header class="app-header">
+    <button type="button" class="brand-lockup" data-go-tab="master-job"
+            aria-label="Open the mastering studio">
+      <span class="brand-mark" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </span>
+      <span class="brand-copy">
+        <strong>Mastering Tools</strong>
+        <small>Local studio</small>
+      </span>
+    </button>
+
+    <nav class="primary-tabs-scroll" aria-label="Workspace">
+      <div class="primary-tabs">
+        <button type="button" id="tab-master-job" class="primary-tab"
+                aria-current="page" aria-controls="panel-master-job" data-tab="master-job">
+          Master
+        </button>
+        <button type="button" id="tab-catalog" class="primary-tab"
+                aria-controls="panel-catalog" data-tab="catalog">
+          Library
+        </button>
+        <button type="button" id="tab-runs" class="primary-tab"
+                aria-controls="panel-runs" data-tab="runs">
+          Activity
+          <span id="event-count-badge" class="tab-badge" hidden>0</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="header-state">
+      <div id="command-task-state" class="command-task-state" aria-live="polite">
+        <span class="status-dot neutral"></span>
+        <span>Idle</span>
+      </div>
+      <span class="privacy-pill"><span class="status-dot good"></span>Local only</span>
+      <span id="header-version" class="version-pill">Loading…</span>
+      <details class="command-menu app-menu" id="app-menu">
+        <summary aria-label="Open application menu" title="Application menu">
+          <span aria-hidden="true">•••</span>
+        </summary>
+        <div class="command-menu-popover">
+          <span class="menu-label">Session</span>
+        <button type="button" data-command="new-job">
+          <span aria-hidden="true">＋</span> New job
+        </button>
+        <button type="button" data-command="validate-job">
+          <span aria-hidden="true">✓</span> Validate current job
+        </button>
+        <button type="button" data-command="refresh-all">
+          <span aria-hidden="true">↻</span> Refresh workspace
+        </button>
+        <hr>
+        <span class="menu-label">Library</span>
+        <button type="button" data-command="import-catalog">
+          <span aria-hidden="true">⇩</span> Import catalog
+        </button>
+        <button type="button" data-command="export-catalog">
+          <span aria-hidden="true">⇧</span> Export catalog
+        </button>
+        <button type="button" data-command="export-selection">
+          <span aria-hidden="true">⇥</span> Export current selection
+        </button>
+        <hr>
+        <span class="menu-label">Tools</span>
+        <button type="button" data-go-tab="reference-sets">Reference sets</button>
+        <button type="button" data-go-tab="events">Event log</button>
+        <button type="button" data-go-tab="diagnostics">System health &amp; logs</button>
+        <button type="button" data-command="open-workspace">
+          <span aria-hidden="true">▱</span> Open workspace folder
+        </button>
+        <hr>
+        <button type="button" class="danger-text" data-command="shutdown">
+          <span aria-hidden="true">⏻</span> Shut down portal
+        </button>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <main id="workspace-main" class="workspace-main" tabindex="-1">
+    <section id="panel-dashboard" class="tab-panel utility-panel" role="region"
+             aria-label="Workspace overview" data-panel="dashboard" hidden>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Private mastering workspace</p>
+          <h1>Workspace</h1>
+          <p id="dashboard-workspace" class="page-subtitle">Connecting to the local workbench…</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="button secondary" data-go-tab="catalog">Manage music</button>
+          <button type="button" class="button primary" data-go-tab="master-job">Create a master</button>
+        </div>
+      </div>
+
+      <div class="metrics-grid compact-summary" aria-label="Workspace summary">
+        <article class="metric-card">
+          <span class="metric-icon target" aria-hidden="true">◉</span>
+          <div>
+            <span class="metric-label">Cataloged tracks</span>
+            <strong id="metric-tracks" class="metric-value">—</strong>
+            <span id="metric-tracks-detail" class="metric-detail">Loading catalog</span>
+          </div>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon reference" aria-hidden="true">◌</span>
+          <div>
+            <span class="metric-label">Reference sets</span>
+            <strong id="metric-sets" class="metric-value">—</strong>
+            <span class="metric-detail">Reusable weighted profiles</span>
+          </div>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon run" aria-hidden="true">▶</span>
+          <div>
+            <span class="metric-label">Audited runs</span>
+            <strong id="metric-runs" class="metric-value">—</strong>
+            <span id="metric-runs-detail" class="metric-detail">No run data yet</span>
+          </div>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon health" aria-hidden="true">✓</span>
+          <div>
+            <span class="metric-label">Environment</span>
+            <strong id="metric-health" class="metric-value small">Checking</strong>
+            <span id="metric-health-detail" class="metric-detail">Dependency diagnostics</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="dashboard-grid streamlined-dashboard">
+        <article class="panel-card operation-panel">
+          <div class="panel-card-header">
+            <div>
+              <h2>Current operation</h2>
+              <p>Stage-based progress from the audited event stream.</p>
+            </div>
+            <button type="button" class="button quiet small" data-go-tab="events">View events</button>
+          </div>
+          <div id="dashboard-task" class="task-empty">
+            <span class="empty-icon" aria-hidden="true">◇</span>
+            <div>
+              <strong>No operation is running</strong>
+              <p>Validate a job or begin with the recommended audited dry run.</p>
+            </div>
+          </div>
+          <div id="dashboard-task-progress" class="task-progress" hidden>
+            <div class="task-progress-row">
+              <div>
+                <span id="dashboard-task-kind" class="task-kind">Operation</span>
+                <strong id="dashboard-task-title">Preparing…</strong>
+              </div>
+              <span id="dashboard-task-status" class="state-badge neutral">Queued</span>
+            </div>
+            <div class="progress-track" aria-hidden="true"><span></span></div>
+            <p id="dashboard-task-message">Waiting for the background worker.</p>
+            <dl class="inline-facts">
+              <div><dt>Stage</dt><dd id="dashboard-task-stage">queued</dd></div>
+              <div><dt>Run ID</dt><dd id="dashboard-task-id">—</dd></div>
+            </dl>
+          </div>
+        </article>
+
+        <article class="panel-card recent-runs-panel">
+          <div class="panel-card-header">
+            <div>
+              <h2>Recent masters</h2>
+              <p>Completed and in-progress audited work.</p>
+            </div>
+            <button type="button" class="button quiet small" data-go-tab="runs">View history</button>
+          </div>
+          <div class="table-shell compact" tabindex="0" aria-label="Recent runs table">
+            <table>
+              <thead><tr><th>Status</th><th>Run ID</th><th>Selection</th><th>Updated</th><th>Manifest</th></tr></thead>
+              <tbody id="dashboard-runs-body">
+                <tr><td colspan="5" class="empty-cell">Loading recent runs…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <details class="disclosure-panel workflow-disclosure">
+        <summary>New here? Show the four-step workflow</summary>
+        <ol class="workflow-bar">
+          <li><span>1</span><strong>Add source audio</strong></li>
+          <li><span>2</span><strong>Build and validate</strong></li>
+          <li><span>3</span><strong>Run an audited dry run</strong></li>
+          <li><span>4</span><strong>Render, listen, and compare</strong></li>
+        </ol>
+      </details>
+    </section>
+
+    <section id="panel-master-job" class="tab-panel" role="region"
+             aria-labelledby="tab-master-job" data-panel="master-job">
+      <div class="page-heading studio-heading">
+        <div>
+          <p class="eyebrow">New mastering session</p>
+          <h1>Build your master</h1>
+          <p class="page-subtitle">Choose the mixes, shape a reference, and render.</p>
+        </div>
+        <div class="page-actions">
+          <button id="job-reset-button" type="button" class="button quiet">Reset settings</button>
+          <button id="job-export-selection-button" type="button" class="button quiet">Save setup…</button>
+        </div>
+      </div>
+
+      <ol class="workflow-progress" aria-label="Mastering workflow">
+        <li class="active"><span>1</span><strong>Music</strong></li>
+        <li><span>2</span><strong>Delivery</strong></li>
+        <li><span>3</span><strong>Review &amp; run</strong></li>
+      </ol>
+
+      <div class="job-layout studio-layout">
+        <div class="job-form-column">
+          <form id="job-form" novalidate>
+            <section class="job-section studio-step" aria-labelledby="job-sources-title">
+              <div class="section-heading">
+                <div><span class="step-kicker">01</span><h2 id="job-sources-title">Choose music</h2></div>
+                <span class="section-hint">One reference profile is applied to every mix.</span>
+              </div>
+
+              <div class="source-board">
+                <section class="source-queue" aria-labelledby="target-queue-title">
+                  <header class="source-queue-header">
+                    <div>
+                      <span class="queue-number target">IN</span>
+                      <div><h3 id="target-queue-title">Mixes</h3><p>Tracks to master</p></div>
+                    </div>
+                    <strong id="target-count" class="count-label">0 of 32 inputs</strong>
+                  </header>
+                  <div class="source-toolbar">
+                    <label class="field grow legacy-picker" for="job-target">
+                      <span>Add from catalog</span>
+                      <select id="job-target">
+                        <option value="">Choose an input track</option>
+                      </select>
+                    </label>
+                    <button id="target-add-button" type="button" class="button secondary">
+                      <span aria-hidden="true">＋</span> Choose from library
+                    </button>
+                    <button type="button" class="button quiet" data-command="add-target-track">Import files…</button>
+                  </div>
+                  <div class="table-shell source-list" tabindex="0" aria-label="Selected input tracks">
+                    <table class="editable-table">
+                      <thead><tr><th>#</th><th>Input track</th><th>Format</th><th>Duration</th><th>Listen</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+                      <tbody id="job-targets-body"><tr><td colspan="6" class="empty-cell">No input tracks selected.</td></tr></tbody>
+                    </table>
+                  </div>
+                  <div id="target-facts" class="selected-facts" hidden></div>
+                </section>
+
+                <section class="source-queue" aria-labelledby="reference-queue-title">
+                  <header class="source-queue-header">
+                    <div>
+                      <span class="queue-number reference">REF</span>
+                      <div><h3 id="reference-queue-title">Reference sound</h3><p>One track or a weighted blend</p></div>
+                    </div>
+                    <strong id="reference-count" class="count-label">0 of 32 references</strong>
+                  </header>
+                  <div class="source-toolbar">
+                    <label class="field grow legacy-picker" for="reference-picker">
+                      <span>Add from catalog</span>
+                      <select id="reference-picker">
+                        <option value="">Choose a reference</option>
+                      </select>
+                    </label>
+                    <button id="reference-add-button" type="button" class="button secondary">
+                      <span aria-hidden="true">＋</span> Choose from library
+                    </button>
+                    <button type="button" class="button quiet" data-command="add-reference-track">Import files…</button>
+                  </div>
+                  <div class="source-toolbar named-set-toolbar">
+                    <label class="field grow" for="reference-set-picker">
+                      <span>Saved profile</span>
+                      <select id="reference-set-picker">
+                        <option value="">Choose a named set</option>
+                      </select>
+                    </label>
+                    <button id="reference-set-load-button" type="button" class="button secondary">Use profile</button>
+                    <button id="references-save-set-button" type="button" class="button quiet">Save</button>
+                    <button id="reference-set-manage-button" type="button" class="button quiet" data-go-tab="reference-sets">Manage</button>
+                  </div>
+                  <div class="table-shell source-list" tabindex="0" aria-label="Selected references">
+                    <table class="editable-table">
+                      <thead>
+                        <tr>
+                          <th>#</th><th>Reference track</th><th>Level</th><th>Share</th>
+                          <th>Tone</th><th>Share</th><th>Listen</th>
+                          <th><span class="visually-hidden">Actions</span></th>
+                        </tr>
+                      </thead>
+                      <tbody id="job-references-body">
+                        <tr><td colspan="8" class="empty-cell">No references selected.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="table-footer">
+                    <div class="engine-summary" id="engine-summary">
+                      <span class="status-dot neutral"></span>
+                      <strong id="engine-summary-name">Choose references</strong>
+                      <small id="engine-summary-detail">Engine follows the reference count.</small>
+                    </div>
+                    <button id="references-equalize-button" type="button" class="button quiet small">Balance evenly</button>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <section class="job-section studio-step" aria-labelledby="job-outputs-title">
+              <div class="section-heading">
+                <div><span class="step-kicker">02</span><h2 id="job-outputs-title">Choose delivery</h2></div>
+                <span class="section-hint">24-bit limited WAV is the standard preset.</span>
+              </div>
+
+              <fieldset class="form-card delivery-summary">
+                <legend class="visually-hidden">Master delivery</legend>
+                <div class="destination-row">
+                  <label class="field grow" for="job-output-directory">
+                    <span>Save masters to</span>
+                    <input id="job-output-directory" type="text" readonly aria-readonly="true" placeholder="Choose an output folder">
+                  </label>
+                  <div class="destination-actions">
+                    <button id="output-folder-choose-button" type="button" class="button secondary">Change…</button>
+                    <button id="output-folder-default-button" type="button" class="button quiet">Default</button>
+                    <button id="output-folder-save-default-button" type="button" class="button quiet">Remember</button>
+                  </div>
+                </div>
+                <div class="output-choice primary-output">
+                  <label class="choice-check" for="output-limited">
+                    <input id="output-limited" type="checkbox" checked><span aria-hidden="true"></span>
+                    <span class="choice-copy"><strong>Limited master</strong><small>Ready-to-deliver WAV</small></span>
+                  </label>
+                  <label class="field embedded-field" for="output-limited-subtype">
+                    <span>Bit depth</span>
+                    <select id="output-limited-subtype">
+                      <option value="PCM_16">PCM 16-bit</option>
+                      <option value="PCM_24" selected>PCM 24-bit</option>
+                      <option value="FLOAT">32-bit float</option>
+                    </select>
+                  </label>
+                </div>
+              </fieldset>
+
+              <details class="additional-output-details disclosure-panel">
+                <summary><span><strong>Additional formats &amp; paired preview</strong><small>Optional</small></span></summary>
+                <div class="output-choice-grid">
+                  <div class="output-choice">
+                    <label class="choice-check" for="output-normalized">
+                      <input id="output-normalized" type="checkbox"><span aria-hidden="true"></span>
+                      <span class="choice-copy"><strong>Normalized</strong><small>No final limiter</small></span>
+                    </label>
+                    <label class="field embedded-field" for="output-normalized-subtype">
+                      <span>Bit depth</span>
+                      <select id="output-normalized-subtype">
+                        <option value="PCM_16">PCM 16-bit</option>
+                        <option value="PCM_24" selected>PCM 24-bit</option>
+                        <option value="FLOAT">32-bit float</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="output-choice">
+                    <label class="choice-check" for="output-raw">
+                      <input id="output-raw" type="checkbox"><span aria-hidden="true"></span>
+                      <span class="choice-copy"><strong>DAW handoff</strong><small>Raw floating-point result</small></span>
+                    </label>
+                    <label class="field embedded-field" for="output-raw-subtype">
+                      <span>Bit depth</span>
+                      <select id="output-raw-subtype">
+                        <option value="FLOAT" selected>32-bit float</option>
+                        <option value="DOUBLE">64-bit float</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+                <div class="preview-card">
+                  <label class="switch-row" for="preview-enabled">
+                    <span><strong>Paired preview</strong><small>Create aligned before/after excerpts</small></span>
+                    <span class="switch"><input id="preview-enabled" type="checkbox"><span></span></span>
+                  </label>
+                  <div id="preview-fields" class="field-grid preview-grid" aria-disabled="true">
+                    <label class="field" for="preview-subtype"><span>Bit depth</span><select id="preview-subtype" disabled><option value="PCM_16" selected>PCM 16-bit</option><option value="PCM_24">PCM 24-bit</option><option value="FLOAT">32-bit float</option></select></label>
+                    <label class="field" for="preview-duration"><span>Duration <span class="unit">seconds</span></span><input id="preview-duration" type="number" min="5.000001" step="0.1" value="30" disabled></label>
+                    <label class="field" for="preview-analysis-step"><span>Analysis step <span class="unit">seconds</span></span><input id="preview-analysis-step" type="number" min="1.000001" step="0.1" value="5" disabled></label>
+                    <label class="field" for="preview-fade-seconds"><span>Fade <span class="unit">seconds</span></span><input id="preview-fade-seconds" type="number" min="0.000001" step="0.1" value="1" disabled></label>
+                    <label class="field" for="preview-fade-coefficient"><span>Fade curve</span><input id="preview-fade-coefficient" type="number" min="2" step="1" value="8" disabled></label>
+                  </div>
+                </div>
+              </details>
+
+              <fieldset class="form-card planned-card" hidden>
+                <legend>Planned output controls</legend>
+                <div class="field-grid">
+                  <label class="field disabled-field" for="planned-dither">
+                    <span>Dither</span>
+                    <select id="planned-dither" disabled>
+                      <option>None — current</option>
+                      <option>TPDF — planned</option>
+                      <option>Noise-shaped — planned</option>
+                    </select>
+                    <small>Current engines accept only no dither.</small>
+                  </label>
+                  <label class="field disabled-field" for="planned-metadata">
+                    <span>Metadata policy</span>
+                    <select id="planned-metadata" disabled>
+                      <option>Drop — current</option>
+                      <option>Copy safe metadata — planned</option>
+                    </select>
+                    <small>Metadata copying is represented but not implemented.</small>
+                  </label>
+                </div>
+              </fieldset>
+            </section>
+
+            <details class="advanced-settings disclosure-panel">
+              <summary>
+                <span><strong>Advanced processing &amp; safety</strong><small>Use the characterized defaults unless the material needs special handling.</small></span>
+              </summary>
+              <div class="advanced-settings-body">
+            <section class="job-section" aria-labelledby="job-processing-title">
+              <div class="section-heading">
+                <div><h2 id="job-processing-title">Processing</h2></div>
+              </div>
+
+              <fieldset class="form-card">
+                <legend>Engine selection</legend>
+                <div class="engine-route-card">
+                  <div class="route-node"><span>1 reference</span><strong>Matchering 2.0.6</strong><small>Exact compatibility route</small></div>
+                  <span class="route-divider" aria-hidden="true">or</span>
+                  <div class="route-node"><span>2–32 references</span><strong>Native weighted profile</strong><small>Independent level/frequency blend</small></div>
+                </div>
+                <p class="field-help">The server derives the engine from your selection. Unsupported settings fail capability validation; they are never approximated.</p>
+              </fieldset>
+
+              <fieldset class="form-card">
+                <legend>Audio normalization</legend>
+                <div class="field-grid">
+                  <label class="field" for="audio-sample-rate">
+                    <span>Internal sample rate <span class="unit">Hz</span></span>
+                    <input id="audio-sample-rate" type="number" min="1" step="1" value="44100">
+                    <small>44.1 kHz is the characterized baseline; other rates produce a warning.</small>
+                  </label>
+                  <label class="field" for="audio-max-length">
+                    <span>Maximum track length <span class="unit">seconds</span></span>
+                    <input id="audio-max-length" type="number" min="0.000001" step="1" value="900">
+                  </label>
+                  <label class="field disabled-field" for="audio-temp-directory">
+                    <span>Temporary directory</span>
+                    <input id="audio-temp-directory" value="Managed per run" readonly aria-readonly="true">
+                    <small>Allocated under the private workspace for each unique run.</small>
+                  </label>
+                  <label class="field disabled-field" for="audio-metadata-policy">
+                    <span>Metadata policy</span>
+                    <select id="audio-metadata-policy" disabled>
+                      <option value="drop" selected>Drop metadata</option>
+                      <option value="copy-safe">Copy safe metadata — unsupported</option>
+                    </select>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-card">
+                <legend>Level and spectral matching</legend>
+                <div class="field-grid">
+                  <label class="field disabled-field" for="matching-loudness-metric">
+                    <span>Loudness metric</span>
+                    <select id="matching-loudness-metric" disabled>
+                      <option value="matchering-loud-section-rms" selected>Matchering loud-section RMS</option>
+                      <option value="ebu-r128-lufs">EBU R128 LUFS — planned</option>
+                    </select>
+                  </label>
+                  <label class="field disabled-field" for="matching-amount">
+                    <span>Match amount</span>
+                    <input id="matching-amount" type="number" value="1" min="0" max="1" step="0.01" readonly>
+                    <small>Partial matching is planned; current engines require 1.0.</small>
+                  </label>
+                  <label class="field" for="matching-max-piece">
+                    <span>Maximum analysis piece <span class="unit">seconds</span></span>
+                    <input id="matching-max-piece" type="number" min="0.000001" step="0.1" value="15">
+                  </label>
+                  <label class="field" for="matching-fft-size">
+                    <span>FFT size</span>
+                    <select id="matching-fft-size">
+                      <option value="512">512</option>
+                      <option value="1024">1024</option>
+                      <option value="2048">2048</option>
+                      <option value="4096" selected>4096</option>
+                      <option value="8192">8192</option>
+                      <option value="16384">16384</option>
+                      <option value="32768">32768</option>
+                    </select>
+                  </label>
+                  <label class="field" for="matching-oversampling">
+                    <span>Linear/log oversampling</span>
+                    <input id="matching-oversampling" type="number" min="1" step="1" value="4">
+                  </label>
+                  <label class="field" for="matching-rms-steps">
+                    <span>RMS correction steps</span>
+                    <input id="matching-rms-steps" type="number" min="0" step="1" value="4">
+                  </label>
+                  <label class="field" for="matching-min-value">
+                    <span>Numerical floor</span>
+                    <input id="matching-min-value" type="number" min="0.000000000001" max="0.099999" step="0.000001" value="0.000001">
+                  </label>
+                  <label class="field" for="matching-max-eq">
+                    <span>Maximum EQ gain <span class="unit">dB</span></span>
+                    <input id="matching-max-eq" type="number" min="0.000001" step="0.5" placeholder="No ceiling">
+                    <small>Optional native weighted guardrail; leave blank for exact one-reference compatibility.</small>
+                  </label>
+                </div>
+                <details class="advanced-disclosure">
+                  <summary>LOWESS smoothing controls</summary>
+                  <div class="field-grid">
+                    <label class="field" for="matching-lowess-fraction">
+                      <span>LOWESS fraction</span>
+                      <input id="matching-lowess-fraction" type="number" min="0.000001" max="1" step="0.0001" value="0.0375">
+                    </label>
+                    <label class="field" for="matching-lowess-iterations">
+                      <span>LOWESS iterations</span>
+                      <input id="matching-lowess-iterations" type="number" min="0" step="1" value="0">
+                    </label>
+                    <label class="field" for="matching-lowess-delta">
+                      <span>LOWESS delta</span>
+                      <input id="matching-lowess-delta" type="number" min="0" step="0.0001" value="0.001">
+                    </label>
+                  </div>
+                </details>
+              </fieldset>
+
+              <fieldset class="form-card">
+                <legend>Limiter</legend>
+                <div class="field-grid">
+                  <label class="field" for="limiter-kind">
+                    <span>Limiter</span>
+                    <select id="limiter-kind">
+                      <option value="hyrax" selected>Hyrax sample-peak limiter</option>
+                      <option value="none">None</option>
+                      <option value="external" disabled>External limiter — planned</option>
+                    </select>
+                    <small>“None” is valid only when limited output is disabled.</small>
+                  </label>
+                  <label class="field disabled-field" for="limiter-peak-mode">
+                    <span>Peak method</span>
+                    <select id="limiter-peak-mode" disabled>
+                      <option value="sample-peak" selected>Sample peak</option>
+                      <option value="true-peak">True peak — planned</option>
+                    </select>
+                  </label>
+                  <label class="field" for="limiter-threshold">
+                    <span>Threshold <span class="unit">linear</span></span>
+                    <input id="limiter-threshold" type="number" min="0.000001" max="0.999999" step="0.000001" value="0.998138427734375">
+                  </label>
+                  <label class="field disabled-field" for="limiter-true-peak-oversampling">
+                    <span>True-peak oversampling</span>
+                    <input id="limiter-true-peak-oversampling" type="number" value="4" min="1" readonly>
+                    <small>Retained in configuration; unused by sample-peak processing.</small>
+                  </label>
+                  <label class="field" for="limiter-attack">
+                    <span>Attack <span class="unit">ms</span></span>
+                    <input id="limiter-attack" type="number" min="0.000001" step="0.1" value="1">
+                  </label>
+                  <label class="field" for="limiter-hold">
+                    <span>Hold <span class="unit">ms</span></span>
+                    <input id="limiter-hold" type="number" min="0.000001" step="0.1" value="1">
+                  </label>
+                  <label class="field" for="limiter-release">
+                    <span>Release <span class="unit">ms</span></span>
+                    <input id="limiter-release" type="number" min="0.000001" step="1" value="3000">
+                  </label>
+                </div>
+                <details class="advanced-disclosure">
+                  <summary>Hyrax envelope filter controls</summary>
+                  <div class="field-grid">
+                    <label class="field" for="limiter-attack-filter">
+                      <span>Attack filter coefficient</span>
+                      <input id="limiter-attack-filter" type="number" max="-0.000001" step="0.1" value="-2">
+                    </label>
+                    <label class="field" for="limiter-hold-filter-order">
+                      <span>Hold filter order</span>
+                      <input id="limiter-hold-filter-order" type="number" min="1" step="1" value="1">
+                    </label>
+                    <label class="field" for="limiter-hold-filter">
+                      <span>Hold filter coefficient</span>
+                      <input id="limiter-hold-filter" type="number" min="0.000001" step="0.1" value="7">
+                    </label>
+                    <label class="field" for="limiter-release-filter-order">
+                      <span>Release filter order</span>
+                      <input id="limiter-release-filter-order" type="number" min="1" step="1" value="1">
+                    </label>
+                    <label class="field" for="limiter-release-filter">
+                      <span>Release filter coefficient</span>
+                      <input id="limiter-release-filter" type="number" min="0.000001" step="1" value="800">
+                    </label>
+                    <label class="field disabled-field" for="limiter-external-command">
+                      <span>External command</span>
+                      <input id="limiter-external-command" value="Not available in this private build" readonly>
+                    </label>
+                  </div>
+                </details>
+              </fieldset>
+            </section>
+
+            <section class="job-section" aria-labelledby="job-safety-title">
+              <div class="section-heading">
+                <div><h2 id="job-safety-title">Safety &amp; audit</h2></div>
+              </div>
+
+              <fieldset class="form-card">
+                <legend>Detection thresholds</legend>
+                <div class="field-grid">
+                  <label class="field" for="detection-silence">
+                    <span>Silence peak</span>
+                    <input id="detection-silence" type="number" min="0" step="0.000000000001" value="0.000000000001">
+                  </label>
+                  <label class="field" for="detection-near-silence">
+                    <span>Near-silence peak</span>
+                    <input id="detection-near-silence" type="number" min="0.000000000001" step="0.000001" value="0.0001">
+                  </label>
+                  <label class="field" for="detection-clipping-peak">
+                    <span>Clipping peak</span>
+                    <input id="detection-clipping-peak" type="number" min="0.000001" step="0.0001" value="1">
+                  </label>
+                  <label class="field" for="detection-clipping-samples">
+                    <span>Clipping sample threshold</span>
+                    <input id="detection-clipping-samples" type="number" min="0" step="1" value="8">
+                  </label>
+                  <label class="field" for="detection-limited-samples">
+                    <span>Limited sample threshold</span>
+                    <input id="detection-limited-samples" type="number" min="1" step="1" value="128">
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="form-card">
+                <legend>Edge-case policy</legend>
+                <div class="policy-grid">
+                  <div class="policy-row"><label for="policy-silence"><strong>Silent input</strong><small>Zero or effectively zero peak</small></label><select id="policy-silence"><option value="error" selected>Error</option><option value="warn">Warn</option><option value="allow">Allow</option></select></div>
+                  <div class="policy-row"><label for="policy-near-silence"><strong>Near-silent input</strong><small>Unstable spectral ratios</small></label><select id="policy-near-silence"><option value="error" selected>Error</option><option value="warn">Warn</option><option value="allow">Allow</option></select></div>
+                  <div class="policy-row"><label for="policy-nonfinite"><strong>Non-finite samples</strong><small>NaN or infinite decoded samples</small></label><select id="policy-nonfinite"><option value="error" selected>Error</option><option value="warn">Warn</option><option value="allow">Allow</option></select></div>
+                  <div class="policy-row"><label for="policy-mono"><strong>Mono input</strong><small>Duplicated to stereo without genuine Side width</small></label><select id="policy-mono"><option value="error">Error</option><option value="warn" selected>Warn</option><option value="allow">Allow</option></select></div>
+                  <div class="policy-row"><label for="policy-multichannel"><strong>More than two channels</strong><small>No declared downmix adapter</small></label><select id="policy-multichannel"><option value="error" selected>Error</option><option value="warn">Warn</option><option value="allow">Allow</option></select></div>
+                  <div class="policy-row"><label for="policy-lossy"><strong>Lossy input</strong><small>MP3, AAC, Opus, or similar extension</small></label><select id="policy-lossy"><option value="error">Error</option><option value="warn" selected>Warn</option><option value="allow">Allow</option></select></div>
+                  <div class="policy-row"><label for="policy-rate-conversion"><strong>Sample-rate conversion</strong><small>Input differs from internal rate</small></label><select id="policy-rate-conversion"><option value="error">Error</option><option value="warn" selected>Warn</option><option value="allow">Allow</option></select></div>
+                  <div class="policy-row"><label for="policy-existing-output"><strong>Existing output</strong><small>Always create a new collision-safe folder; never overwrite</small></label><select id="policy-existing-output" disabled title="Portal jobs always use the error policy"><option value="error" selected>Error (required)</option></select></div>
+                </div>
+                <label class="check-row" for="policy-create-directories">
+                  <input id="policy-create-directories" type="checkbox" checked>
+                  <span><strong>Create missing output directories</strong><small>Only within server-managed run destinations.</small></span>
+                </label>
+                <label class="check-row caution-row" for="audio-allow-identical">
+                  <input id="audio-allow-identical" type="checkbox">
+                  <span><strong>Allow identical target and reference content</strong><small>Diagnostic override only. Normal mastering should leave this disabled.</small></span>
+                </label>
+              </fieldset>
+
+              <fieldset class="form-card">
+                <legend>Execution and evidence</legend>
+                <div class="field-grid">
+                  <label class="field disabled-field" for="execution-engine">
+                    <span>Engine</span>
+                    <input id="execution-engine" value="Derived from reference count" readonly>
+                  </label>
+                  <label class="field disabled-field" for="execution-job-id">
+                    <span>Job ID</span>
+                    <input id="execution-job-id" value="Generated for each operation" readonly>
+                  </label>
+                  <label class="field disabled-field" for="execution-workers">
+                    <span>Maximum workers</span>
+                    <input id="execution-workers" type="number" value="1" readonly>
+                    <small>Both current engines require serialized processing.</small>
+                  </label>
+                  <label class="field disabled-field" for="execution-manifest">
+                    <span>Manifest path</span>
+                    <input id="execution-manifest" value="Managed per run" readonly>
+                  </label>
+                  <label class="field disabled-field" for="execution-event-log">
+                    <span>Event log path</span>
+                    <input id="execution-event-log" value="Managed per run" readonly>
+                  </label>
+                  <label class="field disabled-field" for="execution-temp">
+                    <span>Temporary path</span>
+                    <input id="execution-temp" value="Managed per run" readonly>
+                  </label>
+                </div>
+                <label class="field" for="job-notes">
+                  <span>Private job notes</span>
+                  <textarea id="job-notes" rows="4" maxlength="4000" placeholder="Listening intent, delivery context, or decisions worth retaining with the run."></textarea>
+                </label>
+              </fieldset>
+
+              <fieldset class="form-card planned-card" hidden>
+                <legend>Planned workflow controls</legend>
+                <div class="planned-grid">
+                  <div><span class="planned-tag">Planned</span><strong>Cooperative cancellation</strong><p>No safe cancel contract exists yet. Active DSP must finish.</p><button type="button" disabled>Cancel operation</button></div>
+                  <div><span class="planned-tag">Planned</span><strong>Batch coordination</strong><p>One target and several jobs with explicit failure policy.</p><button type="button" disabled>Create batch</button></div>
+                  <div><span class="planned-tag">Planned</span><strong>Resource budgets</strong><p>Decoded bytes, memory, and output publication limits.</p><button type="button" disabled>Configure budgets</button></div>
+                  <div><span class="planned-tag">Planned</span><strong>Reference cache</strong><p>Verified reusable analysis profiles keyed by content and algorithm.</p><button type="button" disabled>Manage cache</button></div>
+                </div>
+              </fieldset>
+            </section>
+              </div>
+            </details>
+          </form>
+
+          <section class="validation-panel studio-run-rail" aria-labelledby="validation-title">
+            <div class="validation-header">
+              <div>
+                <span class="eyebrow">Review &amp; run</span>
+                <h2 id="validation-title">Your batch</h2>
+              </div>
+              <span id="validation-badge" class="state-badge neutral">Not checked</span>
+            </div>
+            <ul class="readiness-list" aria-label="Job readiness">
+              <li id="readiness-inputs" class="readiness-item"><span aria-hidden="true">○</span><strong>Add at least one mix</strong></li>
+              <li id="readiness-references" class="readiness-item"><span aria-hidden="true">○</span><strong>Choose a reference</strong></li>
+              <li id="readiness-destination" class="readiness-item"><span aria-hidden="true">○</span><strong>Choose a destination</strong></li>
+              <li id="readiness-output" class="readiness-item"><span aria-hidden="true">○</span><strong>Choose a deliverable</strong></li>
+            </ul>
+            <p id="validation-summary" class="validation-summary">Complete the four items above to continue.</p>
+            <div id="task-target-progress" class="task-target-progress" hidden
+                 aria-live="polite" aria-label="Batch target progress"></div>
+            <details id="validation-results" class="validation-results" hidden>
+              <summary>Validation details</summary>
+              <div class="table-shell validation-table-shell" tabindex="0" aria-label="Validation issues">
+                <table>
+                  <thead><tr><th>Severity</th><th>Code</th><th>Message</th><th>Path</th><th>Remediation</th></tr></thead>
+                  <tbody id="validation-issues-body"></tbody>
+                </table>
+              </div>
+              <details class="results-disclosure">
+                <summary>Decoded audio facts <span id="audio-facts-count" class="count-label"></span></summary>
+                <div class="table-shell" tabindex="0" aria-label="Decoded audio facts">
+                  <table>
+                    <thead><tr><th>File</th><th>Format</th><th>Subtype</th><th>Rate</th><th>Channels</th><th>Duration</th><th>Peak</th><th>RMS</th><th>Non-finite</th></tr></thead>
+                    <tbody id="validation-audio-body"></tbody>
+                  </table>
+                </div>
+              </details>
+              <div id="prepared-paths" class="prepared-paths" hidden></div>
+            </details>
+            <div class="execution-actions">
+              <button id="job-validate-button" type="button" class="button secondary">Check setup</button>
+              <button id="dry-run-button" type="button" class="button quiet">
+                <span aria-hidden="true">◇</span> Test run
+              </button>
+              <button id="render-button" type="button" class="button primary">
+                <span aria-hidden="true">▶</span> <span id="render-button-label">Render masters</span>
+              </button>
+              <button id="review-masters-button" type="button" class="button secondary" hidden>
+                Review masters
+              </button>
+            </div>
+            <p class="execution-note">Every render performs its own preflight and writes to a new folder.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-catalog" class="tab-panel" role="region"
+             aria-labelledby="tab-catalog" data-panel="catalog" hidden>
+      <div class="page-heading library-heading">
+        <div>
+          <p class="eyebrow">Your music</p>
+          <h1>Library</h1>
+          <p class="page-subtitle">Organize sources, review masters, and compare versions.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="button primary" data-command="add-both-track">Add audio…</button>
+        </div>
+      </div>
+
+      <div class="toolbar-card library-toolbar">
+        <label class="search-field" for="catalog-search">
+          <span class="visually-hidden">Search original tracks</span>
+          <span aria-hidden="true">⌕</span>
+          <input id="catalog-search" type="search" placeholder="Search original track name or location">
+        </label>
+        <label class="compact-field" for="catalog-role-filter">
+          <span>Show</span>
+          <select id="catalog-role-filter">
+            <option value="">All originals</option>
+            <option value="mastered">Mastered tracks</option>
+            <option value="unmastered">Needs mastering</option>
+            <option value="target">Input mixes</option>
+            <option value="reference">Reference tracks</option>
+          </select>
+        </label>
+        <details class="filter-disclosure">
+          <summary>More filters</summary>
+          <div class="filter-popover">
+            <label class="check-filter" for="catalog-archived-filter">
+              <input id="catalog-archived-filter" type="checkbox">
+              <span>Archived originals</span>
+            </label>
+            <label class="check-filter" for="catalog-discarded-filter">
+              <input id="catalog-discarded-filter" type="checkbox">
+              <span>Discarded masters</span>
+            </label>
+          </div>
+        </details>
+        <div class="toolbar-spacer"></div>
+        <button id="catalog-refresh-button" type="button" class="icon-button" aria-label="Refresh library" title="Refresh library">↻</button>
+        <button id="catalog-verify-all-button" type="button" class="button quiet small">Verify files</button>
+      </div>
+
+      <div class="library-workspace master-library-layout">
+        <article class="list-panel boxed-list master-library-panel library-source-panel">
+          <div class="list-panel-header">
+            <div><h2>Tracks</h2><p id="catalog-result-count">Loading library…</p></div>
+          </div>
+          <details id="master-library-actions" class="export-drawer">
+            <summary><span>Export masters</span><span id="master-library-selection-summary" class="selection-summary">No masters selected</span></summary>
+            <div class="list-panel-toolbar master-library-toolbar">
+              <label class="check-filter" for="master-library-select-all">
+                <input id="master-library-select-all" type="checkbox">
+                <span>Select latest visible masters</span>
+              </label>
+              <div class="toolbar-spacer"></div>
+              <label class="compact-field suffix-field" for="master-export-suffix">
+                <span>Filename suffix</span>
+                <input id="master-export-suffix" value="-mastered" maxlength="48" spellcheck="false">
+              </label>
+              <button id="master-export-clear-button" type="button" class="button quiet small" disabled>Clear</button>
+              <button id="master-export-button" type="button" class="button primary small" disabled>Export…</button>
+            </div>
+          </details>
+          <div class="table-shell workspace-table master-library-list library-source-table" tabindex="0" aria-label="Original tracks">
+            <table class="selectable-table standard-file-table master-library-table">
+              <thead><tr><th>Export</th><th>Status</th><th>Track</th><th data-column-priority="low">Use</th><th>Masters</th><th data-column-priority="low">Latest</th><th>Duration</th><th>Listen</th><th data-column-priority="low">Location</th></tr></thead>
+              <tbody id="master-library-body">
+                <tr><td colspan="9" class="empty-cell">Loading original tracks…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <section id="master-detail" class="list-panel boxed-list master-library-detail library-detail-panel" aria-labelledby="track-detail-title">
+          <div class="list-panel-header library-detail-header">
+            <div><span class="eyebrow">Selected original</span><h2 id="track-detail-title">Nothing selected</h2></div>
+            <span id="track-detail-state" class="state-badge neutral">—</span>
+          </div>
+          <div id="track-detail-empty" class="empty-state">
+            <span class="empty-icon" aria-hidden="true">◉</span>
+            <strong>Select an original track</strong>
+            <p>Choose a track to see its versions and prepare a comparison.</p>
+          </div>
+          <div id="track-detail-content" hidden>
+            <div class="library-source-summary">
+              <dl id="track-detail-facts" class="detail-list horizontal"></dl>
+              <div class="detail-actions library-source-actions">
+                <button id="track-play-button" type="button" class="button primary small">Play original</button>
+                <button id="track-compare-button" type="button" class="button secondary small">Compare</button>
+                <button id="track-role-target-button" type="button" class="button quiet small">Add to inputs</button>
+                <button id="track-role-reference-button" type="button" class="button quiet small">Use as reference</button>
+                <details class="inline-action-menu">
+                  <summary aria-label="More track actions" title="More track actions">•••</summary>
+                  <div>
+                    <button id="track-rename-button" type="button" class="button quiet small">Rename…</button>
+                    <button id="track-verify-button" type="button" class="button quiet small">Verify source</button>
+                    <button id="track-relink-button" type="button" class="button quiet small">Relink…</button>
+                    <button id="track-archive-button" type="button" class="button danger small">Archive original</button>
+                    <button id="track-restore-button" type="button" class="button secondary small" hidden>Restore original</button>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            <div id="master-batch-actions" class="version-toolbar">
+              <div>
+                <h3>Mastered versions</h3>
+                <p id="master-version-summary">No mastered versions yet.</p>
+              </div>
+              <label class="check-filter" for="master-version-select-all">
+                <input id="master-version-select-all" type="checkbox">
+                <span>Add selected version to export batch</span>
+              </label>
+            </div>
+
+            <div class="table-shell version-list master-version-table" tabindex="0" aria-label="Mastered versions for selected original">
+              <table class="standard-file-table version-table">
+                <thead><tr><th>Select</th><th>Version name</th><th>Created</th><th>Status</th><th>Output</th><th>Deliverables</th><th>Review</th><th>Manage</th></tr></thead>
+                <tbody id="master-versions-body">
+                  <tr><td colspan="8" class="empty-cell">No mastered versions for this original.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <details class="source-location-disclosure">
+              <summary>Source identity and known locations</summary>
+              <div class="table-shell detail-table" tabindex="0" aria-label="Original track locations">
+                <table>
+                  <thead><tr><th>State</th><th>Path</th><th>Last verified</th></tr></thead>
+                  <tbody id="track-locations-body"></tbody>
+                </table>
+              </div>
+            </details>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="panel-reference-sets" class="tab-panel utility-panel" role="region"
+             aria-label="Reference profiles" data-panel="reference-sets" hidden>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Master · Saved profiles</p>
+          <h1>Reference profiles</h1>
+          <p class="page-subtitle">Save and reuse weighted reference blends.</p>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="button quiet" data-go-tab="master-job">Back to master</button>
+          <button id="set-create-button" type="button" class="button primary">Create reference set</button>
+        </div>
+      </div>
+
+      <div class="split-workspace sets-split">
+        <article class="panel-card flush">
+          <div class="panel-card-header padded">
+            <div><h2>Named sets</h2><p id="set-result-count">Loading sets…</p></div>
+          </div>
+          <div class="table-shell workspace-table" tabindex="0" aria-label="Reference sets">
+            <table class="selectable-table">
+              <thead><tr><th>Name</th><th>References</th><th>Updated</th><th>Set ID</th></tr></thead>
+              <tbody id="reference-sets-body">
+                <tr><td colspan="4" class="empty-cell">Loading reference sets…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <aside class="detail-pane" aria-labelledby="set-detail-title">
+          <div class="detail-pane-header">
+            <div><span class="eyebrow">Set details</span><h2 id="set-detail-title">Nothing selected</h2></div>
+          </div>
+          <div id="set-detail-empty" class="empty-state">
+            <span class="empty-icon" aria-hidden="true">◌</span>
+            <strong>Select a reference set</strong>
+            <p>Review independent weights or replace the complete ordered membership.</p>
+          </div>
+          <div id="set-detail-content" hidden>
+            <div class="normalized-summary">
+              <div><span>Level total</span><strong id="set-level-total">—</strong></div>
+              <div><span>Frequency total</span><strong id="set-frequency-total">—</strong></div>
+            </div>
+            <div class="table-shell detail-table tall" tabindex="0" aria-label="Reference set members">
+              <table>
+                <thead><tr><th>#</th><th>Reference</th><th>Level</th><th>Normalized</th><th>Frequency</th><th>Normalized</th></tr></thead>
+                <tbody id="set-members-body"></tbody>
+              </table>
+            </div>
+            <div class="detail-actions">
+              <button id="set-use-button" type="button" class="button primary small">Use in job</button>
+              <button id="set-edit-button" type="button" class="button secondary small">Edit members</button>
+              <button id="set-rename-button" type="button" class="button quiet small">Rename</button>
+              <button id="set-delete-button" type="button" class="button danger small">Delete</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <aside class="notice info">
+        <span class="notice-icon" aria-hidden="true">i</span>
+        <div>
+          <strong>Weights are not percentages</strong>
+          <p>Enter any finite, non-negative proportions. The application normalizes level and frequency weights independently when it builds the profile.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section id="panel-runs" class="tab-panel" role="region"
+             aria-labelledby="tab-runs" data-panel="runs" hidden>
+      <nav class="activity-nav" aria-label="Activity views">
+        <button type="button" class="active" aria-current="page" data-go-tab="runs">History</button>
+        <button type="button" data-go-tab="events">Event log</button>
+        <button type="button" data-go-tab="diagnostics">System</button>
+      </nav>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Audited work</p>
+          <h1>History</h1>
+          <p class="page-subtitle">Review runs, outputs, and retained evidence.</p>
+        </div>
+        <div class="page-actions">
+          <button id="run-recover-file-button" type="button" class="button secondary">Recover manifest…</button>
+          <button id="runs-refresh-button" type="button" class="button primary">Refresh runs</button>
+        </div>
+      </div>
+
+      <div class="runs-workspace">
+        <article class="panel-card flush">
+          <div class="panel-card-header padded"><div><h2>Run history</h2><p id="runs-result-count">Loading runs…</p></div></div>
+          <div class="table-shell run-list-table" tabindex="0" aria-label="Run history">
+            <table class="selectable-table">
+              <thead><tr><th>Status</th><th>Run ID</th><th>Selection</th><th>Created</th><th>Updated</th><th>Manifest</th></tr></thead>
+              <tbody id="runs-body"><tr><td colspan="6" class="empty-cell">Loading runs…</td></tr></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel-card run-detail-card">
+          <div class="panel-card-header">
+            <div><span class="eyebrow">Selected run</span><h2 id="run-detail-title">Nothing selected</h2><p id="run-detail-subtitle">Choose a run to inspect its evidence chain.</p></div>
+            <div class="page-actions">
+              <button id="run-open-folder-button" type="button" class="button quiet small" disabled>Open folder</button>
+              <button id="run-recover-button" type="button" class="button secondary small" disabled>Recover indexing</button>
+            </div>
+          </div>
+          <div id="run-detail-empty" class="empty-state wide">
+            <span class="empty-icon" aria-hidden="true">▶</span>
+            <strong>Select an audited run</strong>
+            <p>Artifacts and the full manifest will appear here.</p>
+          </div>
+          <div id="run-detail-content" hidden>
+            <div class="subtabs" role="tablist" aria-label="Run detail">
+              <button id="run-tab-artifacts" type="button" role="tab" aria-selected="true"
+                      aria-controls="run-panel-artifacts" data-run-subtab="artifacts">Artifacts</button>
+              <button id="run-tab-overview" type="button" role="tab" aria-selected="false"
+                      aria-controls="run-panel-overview" data-run-subtab="overview" tabindex="-1">Manifest overview</button>
+              <button id="run-tab-raw" type="button" role="tab" aria-selected="false"
+                      aria-controls="run-panel-raw" data-run-subtab="raw" tabindex="-1">Raw manifest</button>
+            </div>
+            <section id="run-panel-artifacts" role="tabpanel" aria-labelledby="run-tab-artifacts"
+                     data-run-panel="artifacts">
+              <div class="table-shell artifacts-table" tabindex="0" aria-label="Run artifacts">
+                <table>
+                  <thead><tr><th>Role</th><th>#</th><th>State</th><th>Type</th><th>Size</th><th>Listen</th><th>Path</th><th>SHA-256</th></tr></thead>
+                  <tbody id="run-artifacts-body"></tbody>
+                </table>
+              </div>
+            </section>
+            <section id="run-panel-overview" role="tabpanel" aria-labelledby="run-tab-overview"
+                     data-run-panel="overview" hidden>
+              <div id="manifest-overview" class="manifest-overview"></div>
+            </section>
+            <section id="run-panel-raw" role="tabpanel" aria-labelledby="run-tab-raw"
+                     data-run-panel="raw" hidden>
+              <pre id="manifest-raw" class="code-view" tabindex="0">No manifest loaded.</pre>
+            </section>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="panel-events" class="tab-panel utility-panel" role="region"
+             aria-label="Event log" data-panel="events" hidden>
+      <nav class="activity-nav" aria-label="Activity views">
+        <button type="button" data-go-tab="runs">History</button>
+        <button type="button" class="active" aria-current="page" data-go-tab="events">Event log</button>
+        <button type="button" data-go-tab="diagnostics">System</button>
+      </nav>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Current operation</p>
+          <h1>Event log</h1>
+          <p class="page-subtitle">Follow the ordered worker and audit trail.</p>
+        </div>
+        <div class="page-actions">
+          <button id="events-clear-view-button" type="button" class="button secondary">Clear view</button>
+          <label class="switch-row compact-switch" for="events-autoscroll">
+            <span><strong>Auto-scroll</strong></span>
+            <span class="switch"><input id="events-autoscroll" type="checkbox" checked><span></span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="toolbar-card">
+        <label class="search-field" for="events-search">
+          <span class="visually-hidden">Search events</span>
+          <span aria-hidden="true">⌕</span>
+          <input id="events-search" type="search" placeholder="Search code, message, stage, or job ID">
+        </label>
+        <label class="compact-field" for="events-level-filter">
+          <span>Minimum level</span>
+          <select id="events-level-filter">
+            <option value="debug">Debug</option>
+            <option value="info" selected>Info</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+          </select>
+        </label>
+        <label class="compact-field" for="events-stage-filter">
+          <span>Stage</span>
+          <select id="events-stage-filter"><option value="">All stages</option></select>
+        </label>
+        <div class="toolbar-spacer"></div>
+        <span id="events-visible-count" class="count-label">0 events</span>
+      </div>
+
+      <div class="events-layout">
+        <article class="panel-card flush">
+          <div id="events-table-shell" class="table-shell events-table" tabindex="0" aria-label="Live event stream">
+            <table class="selectable-table">
+              <thead><tr><th>Time</th><th>Level</th><th>Sequence</th><th>Stage</th><th>Code</th><th>Message</th><th>Job</th></tr></thead>
+              <tbody id="events-body"><tr><td colspan="7" class="empty-cell">No events received in this browser session.</td></tr></tbody>
+            </table>
+          </div>
+        </article>
+        <aside class="detail-pane event-detail-pane" aria-labelledby="event-detail-title">
+          <div class="detail-pane-header"><div><span class="eyebrow">Event detail</span><h2 id="event-detail-title">Nothing selected</h2></div></div>
+          <div id="event-detail-empty" class="empty-state">
+            <span class="empty-icon" aria-hidden="true">≡</span>
+            <strong>Select an event</strong>
+            <p>Review its complete structured context here.</p>
+          </div>
+          <pre id="event-detail-json" class="code-view compact-code" tabindex="0" hidden></pre>
+        </aside>
+      </div>
+
+      <aside class="notice warning">
+        <span class="notice-icon" aria-hidden="true">!</span>
+        <div><strong>There is no safe cancellation contract yet</strong><p>Closing this tab or browser does not stop the worker. Keep the portal running until the operation reaches a terminal event.</p></div>
+      </aside>
+    </section>
+
+    <section id="panel-diagnostics" class="tab-panel utility-panel" role="region"
+             aria-label="System health and help" data-panel="diagnostics" hidden>
+      <nav class="activity-nav" aria-label="Activity views">
+        <button type="button" data-go-tab="runs">History</button>
+        <button type="button" data-go-tab="events">Event log</button>
+        <button type="button" class="active" aria-current="page" data-go-tab="diagnostics">System</button>
+      </nav>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Environment &amp; support</p>
+          <h1>System</h1>
+          <p class="page-subtitle">Inspect health, capabilities, and local logs.</p>
+        </div>
+        <div class="page-actions">
+          <button id="diagnostics-refresh-button" type="button" class="button primary">Run diagnostics</button>
+        </div>
+      </div>
+
+      <div class="diagnostics-grid">
+        <article class="panel-card">
+          <div class="panel-card-header"><div><h2>Environment doctor</h2><p>Python, mastering stack, native audio, and optional tools.</p></div><span id="doctor-badge" class="state-badge neutral">Not checked</span></div>
+          <div id="doctor-summary" class="diagnostic-summary">Run diagnostics to inspect this environment.</div>
+          <div class="table-shell diagnostics-table" tabindex="0" aria-label="Environment checks">
+            <table><thead><tr><th>Status</th><th>Check</th><th>Observed</th><th>Detail</th></tr></thead><tbody id="doctor-body"><tr><td colspan="4" class="empty-cell">No diagnostic report loaded.</td></tr></tbody></table>
+          </div>
+        </article>
+
+        <article class="panel-card">
+          <div class="panel-card-header"><div><h2>Engine capability matrix</h2><p>Runtime authority for truthful execution.</p></div></div>
+          <div class="table-shell diagnostics-table tall" tabindex="0" aria-label="Engine capability matrix">
+            <table><thead><tr><th>Capability</th><th>Upstream 2.0.6</th><th>Native weighted</th></tr></thead><tbody id="capabilities-body"><tr><td colspan="3" class="empty-cell">Loading capabilities…</td></tr></tbody></table>
+          </div>
+        </article>
+
+        <article class="panel-card span-2">
+          <div class="panel-card-header">
+            <div><h2>Session logs</h2><p>Launcher and portal diagnostics retained in the private workspace.</p></div>
+            <button id="logs-refresh-button" type="button" class="button quiet small">Refresh logs</button>
+          </div>
+          <div class="log-workspace">
+            <div class="table-shell compact" tabindex="0" aria-label="Private session logs">
+              <table class="selectable-table">
+                <thead><tr><th>Log</th><th>Size</th><th>Modified</th></tr></thead>
+                <tbody id="logs-body"><tr><td colspan="3" class="empty-cell">Loading logs…</td></tr></tbody>
+              </table>
+            </div>
+            <div>
+              <div class="inline-toolbar">
+                <strong id="log-view-title">Select a log</strong>
+                <span class="toolbar-spacer"></span>
+                <button id="log-open-folder-button" type="button" class="button quiet small" disabled>Show in folder</button>
+              </div>
+              <pre id="log-view" class="code-view log-view" tabindex="0">Select a log to inspect its retained diagnostic text.</pre>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="help-grid">
+        <article class="panel-card">
+          <h2>What works today</h2>
+          <ul class="feature-list good-list">
+            <li>Exact one-reference Matchering 2.0.6 compatibility</li>
+            <li>Native deterministic profiles from two through 32 references</li>
+            <li>Independent level and frequency influence</li>
+            <li>Limited, normalized, raw floating-point, and paired preview outputs</li>
+            <li>Audio-aware validation and explicit edge-case policies</li>
+            <li>Complete manifests, structured events, catalogs, and strict reimport</li>
+          </ul>
+        </article>
+        <article class="panel-card">
+          <h2>Truthful current limits</h2>
+          <ul class="feature-list planned-list">
+            <li>Match amount remains fixed at 100%</li>
+            <li>Loudness is Matchering loud-section RMS, not EBU R128 LUFS</li>
+            <li>Peak control is sample peak, not oversampled true peak</li>
+            <li>Dither, metadata copying, and external limiters are unavailable</li>
+            <li>Batch inputs run sequentially and retain independent results; cancellation is planned</li>
+            <li>Audio publication is not yet transactional across all outputs</li>
+          </ul>
+        </article>
+        <article class="panel-card">
+          <h2>Keyboard and focus</h2>
+          <dl class="shortcut-list">
+            <div><dt>Tab / Shift+Tab</dt><dd>Move through controls</dd></div>
+            <div><dt>Arrow keys</dt><dd>Move across tab bars</dd></div>
+            <div><dt>Enter / Space</dt><dd>Select a table row or activate a control</dd></div>
+            <div><dt>Escape</dt><dd>Close an open dialog or menu</dd></div>
+          </dl>
+        </article>
+        <article class="panel-card">
+          <h2>Privacy and recovery</h2>
+          <p>The portal binds to localhost and serves no third-party assets. Source audio stays in place unless you explicitly choose another workflow.</p>
+          <p>On failure, inspect the manifest first, then the ordered event stream. Partial outputs are diagnostic artifacts, never proof of success.</p>
+          <div class="stacked-actions">
+            <button type="button" class="button secondary" data-command="open-workspace">Open workspace folder</button>
+            <button type="button" class="button secondary" data-go-tab="runs">Inspect run artifacts</button>
+          </div>
+        </article>
+      </div>
+
+      <article class="panel-card">
+        <div class="panel-card-header"><div><h2>Portal information</h2><p>Local application identity and paths.</p></div></div>
+        <dl id="portal-information" class="detail-list horizontal"></dl>
+      </article>
+    </section>
+  </main>
+
+  <section id="audition-dock" class="audition-dock" aria-label="A/B audition player" hidden>
+    <div class="audition-heading">
+      <span class="eyebrow">Compare</span>
+      <strong id="audition-now-playing" aria-live="polite">Choose two versions</strong>
+    </div>
+    <div class="audition-slots" role="group" aria-label="Comparison sources">
+      <div class="audition-choice">
+        <button id="audition-slot-a" type="button" class="audition-slot active"
+                aria-pressed="true" aria-keyshortcuts="1">
+          <span>A</span><small id="audition-label-a">Empty</small>
+        </button>
+        <label class="visually-hidden" for="audition-picker-a">Choose comparison A</label>
+        <select id="audition-picker-a" class="comparison-select" aria-label="Choose comparison A">
+          <option value="">Choose A…</option>
+        </select>
+      </div>
+      <button id="audition-swap-button" type="button" class="audition-swap-button"
+              aria-label="Swap comparison A and B" title="Swap A and B">⇄</button>
+      <div class="audition-choice">
+        <button id="audition-slot-b" type="button" class="audition-slot"
+                aria-pressed="false" aria-keyshortcuts="2">
+          <span>B</span><small id="audition-label-b">Empty</small>
+        </button>
+        <label class="visually-hidden" for="audition-picker-b">Choose comparison B</label>
+        <select id="audition-picker-b" class="comparison-select" aria-label="Choose comparison B">
+          <option value="">Choose B…</option>
+        </select>
+      </div>
+    </div>
+    <audio id="audition-player" controls preload="metadata" controlslist="nodownload noplaybackrate">
+      Your browser does not support local audio playback.
+    </audio>
+    <span class="audition-mode" title="Playback uses the original file bytes without loudness matching.">Raw level</span>
+    <button id="audition-clear-button" type="button" class="icon-button audition-close-button"
+            aria-label="Close comparison" title="Close comparison">×</button>
+  </section>
+
+  <footer class="status-bar status-accessibility">
+    <div id="global-status" role="status" aria-live="polite">
+      <span class="status-dot neutral"></span>
+      <span>Connecting to the private workbench…</span>
+    </div>
+    <div class="status-bar-meta">
+      <span id="status-catalog">Catalog: —</span>
+      <span id="status-task">Worker: —</span>
+    </div>
+  </footer>
+
+  <dialog id="app-dialog" class="app-dialog" aria-labelledby="dialog-title"
+          aria-describedby="dialog-description">
+    <form method="dialog" id="dialog-form">
+      <header class="dialog-header">
+        <div>
+          <span id="dialog-kicker" class="eyebrow"></span>
+          <h2 id="dialog-title">Dialog</h2>
+          <p id="dialog-description"></p>
+        </div>
+        <button type="button" id="dialog-close" class="icon-button" aria-label="Close dialog">×</button>
+      </header>
+      <div id="dialog-body" class="dialog-body"></div>
+      <footer id="dialog-actions" class="dialog-actions"></footer>
+    </form>
+  </dialog>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+  <noscript>
+    <div class="noscript-message">
+      <strong>JavaScript is required for the local workbench.</strong>
+      <p>Enable JavaScript for this localhost page. No script or asset is loaded from the internet.</p>
+    </div>
+  </noscript>
+</body>
+</html>

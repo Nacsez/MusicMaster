@@ -1,0 +1,20 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.flac binary
+*.gif binary
+*.ico binary
+*.jpeg binary
+*.jpg binary
+*.mp3 binary
+*.ogg binary
+*.png binary
+*.wav binary
+*.zip binary
+
+# Keep byte-verified upstream notices and provenance intact across checkouts.
+packaging/third_party/** -text whitespace=-blank-at-eof,cr-at-eol
+# This upstream Markdown heading is an underline, not a merge conflict.
+packaging/third_party/openssl/AUTHORS.md conflict-marker-size=32

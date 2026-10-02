@@ -1,0 +1,18 @@
+# Validated Windows x64 / CPython 3.11 runtime, with complete transitive pins.
+matchering==2.0.6
+cffi==2.1.0
+llvmlite==0.48.0
+numba==0.66.0
+numpy==2.4.6
+packaging==26.2
+pandas==3.0.5
+patsy==1.0.2
+pycparser==3.0
+python-dateutil==2.9.0.post0
+resampy==0.4.3
+scipy==1.17.1
+six==1.17.0
+soundfile==0.14.0
+statsmodels==0.14.6
+tzdata==2026.3
+typing_extensions==4.16.0

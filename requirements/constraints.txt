@@ -1,0 +1,19 @@
+# Compatibility guardrails for the initial private baseline.
+#
+# This is intentionally a constraints file, not a cross-platform lock file.
+# Capture the exact resolved environment after each validated install; the
+# bootstrap script records `pip freeze --all` under artifacts/environment/.
+matchering==2.0.6
+numpy>=1.23.4,<3
+resampy>=0.4.2,<1
+scipy>=1.9.2,<2
+soundfile>=0.11.0,<1
+statsmodels>=0.13.2,<1
+
+build>=1.2,<2
+mypy>=1.11,<2
+pytest>=8.2,<9
+pytest-cov>=5,<7
+ruff>=0.9,<1
+setuptools>=77,<82
+wheel>=0.41,<1

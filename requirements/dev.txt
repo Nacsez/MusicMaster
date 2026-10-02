@@ -1,0 +1,11 @@
+# Developer and verification requirements.
+-c constraints.txt
+-r base.txt
+
+build
+mypy
+pytest
+pytest-cov
+ruff
+setuptools
+wheel

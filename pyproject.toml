@@ -1,0 +1,141 @@
+[build-system]
+requires = ["setuptools>=77,<82", "wheel>=0.41,<1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "music-mastering-tools"
+version = "0.1.0"
+description = "A local, auditable workbench for reference-guided music mastering."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Music Mastering Tools contributors" },
+]
+keywords = [
+    "audio",
+    "dsp",
+    "mastering",
+    "matchering",
+    "music",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+]
+dependencies = [
+    "matchering==2.0.6",
+]
+
+[project.scripts]
+mmt = "music_mastering_tools.cli:main"
+mmt-portal = "music_mastering_tools.portal:main"
+mmt-desktop = "music_mastering_tools.desktop:main"
+
+[tool.setuptools.package-data]
+music_mastering_tools = ["web_assets/*.html", "web_assets/*.css", "web_assets/*.js"]
+
+[project.optional-dependencies]
+packaging = [
+    "pyinstaller==6.22.0",
+    "pyinstaller-hooks-contrib==2026.8",
+]
+dev = [
+    "build>=1.2,<2",
+    "mypy>=1.11,<2",
+    "pytest>=8.2,<9",
+    "pytest-cov>=5,<7",
+    "ruff>=0.9,<1",
+    "setuptools>=77,<82",
+    "wheel>=0.41,<1",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["music_mastering_tools*"]
+
+[tool.pytest.ini_options]
+minversion = "8.2"
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
+]
+testpaths = ["tests"]
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s %(levelname)s %(name)s: %(message)s"
+log_cli_date_format = "%Y-%m-%dT%H:%M:%S"
+markers = [
+    "unit: fast tests with no filesystem, network, or external process dependencies",
+    "integration: tests spanning adapters, files, and the Matchering dependency",
+    "regression: measured or golden-output checks that protect established behavior",
+    "smoke: short end-to-end checks of the primary supported workflow",
+    "slow: tests intentionally excluded from the default developer feedback loop",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["music_mastering_tools"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
+
+[tool.coverage.xml]
+output = "artifacts/coverage/coverage.xml"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests", "scripts"]
+extend-exclude = [
+    "artifacts",
+    "matchering-master",
+    "tests/fixtures/generated",
+]
+
+[tool.ruff.lint]
+select = [
+    "B",
+    "E",
+    "F",
+    "I",
+    "UP",
+]
+
+[tool.ruff.format]
+line-ending = "lf"
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+strict = true
+show_error_codes = true
+pretty = true
+warn_unreachable = true
+ignore_missing_imports = true
+exclude = [
+    "^artifacts/",
+    "^matchering-master/",
+    "^tests/fixtures/generated/",
+]
