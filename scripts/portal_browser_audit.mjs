@@ -271,7 +271,7 @@ async function auditActionReachability(session, tab, selectors) {
   return { ...layout, controls: metrics, allReachable: metrics.every(item => item.reachable) };
 }
 
-async function pressKey(session, key) {
+async function pressKey(session, key, modifiers = 0) {
   const definitions = {
     Enter: { code: "Enter", windowsVirtualKeyCode: 13 },
     Space: { key: " ", code: "Space", windowsVirtualKeyCode: 32, text: " " },
@@ -279,11 +279,13 @@ async function pressKey(session, key) {
     ArrowDown: { code: "ArrowDown", windowsVirtualKeyCode: 40 },
     ArrowUp: { code: "ArrowUp", windowsVirtualKeyCode: 38 },
     Home: { code: "Home", windowsVirtualKeyCode: 36 },
+    Tab: { code: "Tab", windowsVirtualKeyCode: 9 },
   };
   const definition = definitions[key];
   if (!definition) throw new Error(`unsupported audit key: ${key}`);
   const actualKey = definition.key || key;
   const common = {
+    modifiers,
     key: actualKey,
     code: definition.code,
     windowsVirtualKeyCode: definition.windowsVirtualKeyCode,
@@ -1088,16 +1090,28 @@ try {
       probe.append(badge);
     }
     rail.append(probe);
-    document.getElementById('job-output-directory').focus();
     return true;
   })()`);
+  // Programmatic focus alone can retain the previous input modality or sample
+  // focus styling before Chromium paints it. Exercise a real keyboard entry
+  // from the field's next tab stop in an explicitly focused browser page.
+  await session.call('Page.bringToFront');
+  await session.call('Emulation.setFocusEmulationEnabled', { enabled: true });
+  await evaluate(session, "document.getElementById('output-folder-choose-button').focus(); true");
+  await pressKey(session, 'Tab', 8); // CDP modifier 8 is Shift: move to the prior field.
+  const keyboardFocusEnteredField = await evaluate(session,
+    "document.activeElement === document.getElementById('job-output-directory')");
+  const browserVersion = await session.call('Browser.getVersion');
   const themeExpression = `(() => {
     const focus = document.getElementById('job-output-directory');
     const focusStyle = getComputedStyle(focus);
     return {
       forcedColors: matchMedia('(forced-colors: active)').matches,
+      documentHasFocus: document.hasFocus(),
       activeIsField: document.activeElement === focus,
+      focusMatches: focus.matches(':focus'),
       focusVisible: focus.matches(':focus-visible'),
+      focusToken: focusStyle.getPropertyValue('--focus').trim(),
       outlineStyle: focusStyle.outlineStyle,
       outlineWidth: focusStyle.outlineWidth,
       outlineColor: focusStyle.outlineColor,
@@ -1110,11 +1124,28 @@ try {
       })),
     };
   })()`;
-  const themeNormal = await evaluate(session, themeExpression);
+  async function captureSettledTheme(forcedColors) {
+    const started = Date.now();
+    let snapshot;
+    let settled = false;
+    do {
+      await evaluate(session, 'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))');
+      snapshot = await evaluate(session, themeExpression);
+      settled = snapshot.forcedColors === forcedColors && snapshot.documentHasFocus &&
+        snapshot.activeIsField && snapshot.focusMatches && snapshot.focusVisible &&
+        snapshot.outlineStyle === 'solid' && parseFloat(snapshot.outlineWidth) >= 3 &&
+        (forcedColors || (snapshot.outlineColor === 'rgb(255, 120, 212)' &&
+          snapshot.primaryFill === 'rgb(118, 255, 83)'));
+      if (settled) break;
+      await sleep(50);
+    } while (Date.now() - started < 3000);
+    // Retain the last actual browser result on timeout; never normalize a bad
+    // color into the expected value or discard the remaining audit evidence.
+    return { ...snapshot, settled, settledAfterMs: Date.now() - started };
+  }
+  const themeNormal = await captureSettledTheme(false);
   await session.call('Emulation.setEmulatedMedia', { features: [{ name: 'forced-colors', value: 'active' }] });
-  await sleep(200);
-  await evaluate(session, "document.getElementById('job-output-directory').focus(); true");
-  const themeForced = await evaluate(session, themeExpression);
+  const themeForced = await captureSettledTheme(true);
   await screenshot(session, 'master-forced-colors-statuses-1280x800.png');
   await session.call('Emulation.setEmulatedMedia', { features: [] });
   await evaluate(session, "document.getElementById('smoke-status-probe').remove(); true");
@@ -1236,12 +1267,15 @@ try {
       responsiveActions['200percent']['master-job'].mixCount === 2 &&
       responsiveActions['200percent']['master-job'].referenceCount === 1,
     caderKeyboardFocusDistinct:
-      themeNormal.focusVisible && themeNormal.outlineStyle === 'solid' &&
+      keyboardFocusEnteredField && themeNormal.settled && themeNormal.documentHasFocus &&
+      themeNormal.activeIsField && themeNormal.focusMatches && themeNormal.focusVisible &&
+      themeNormal.outlineStyle === 'solid' &&
       parseFloat(themeNormal.outlineWidth) >= 3 &&
       themeNormal.outlineColor === 'rgb(255, 120, 212)' &&
       themeNormal.primaryFill === 'rgb(118, 255, 83)',
     forcedColorsKeepFocusAndStatusLabels:
-      themeForced.forcedColors && themeForced.focusVisible &&
+      themeForced.settled && themeForced.forcedColors && themeForced.documentHasFocus &&
+      themeForced.activeIsField && themeForced.focusMatches && themeForced.focusVisible &&
       themeForced.outlineStyle === 'solid' && parseFloat(themeForced.outlineWidth) >= 3 &&
       themeForced.statuses.map(item => item.text).join(',') === 'Ready,Warning,Error' &&
       themeForced.statuses.every(item => item.borderStyle === 'solid' && parseFloat(item.borderWidth) >= 1),
@@ -1413,6 +1447,8 @@ try {
     passed: Object.values(checks).every(Boolean),
     checks,
     responsiveActions,
+    browserVersion,
+    keyboardFocusEnteredField,
     themeNormal,
     themeForced,
     rowKeyboard: { before: rowKeyboardBefore, after: rowKeyboardAfter },

@@ -46,6 +46,21 @@ file. Reproduction evidence is
 and its JUnit report. Final source/remote verification receipts are retained in
 `artifacts/release-audit/source-publication.json`.
 
+The second [GitHub Windows run](https://github.com/Nacsez/MusicMaster/actions/runs/37078724499)
+passed the full regression suite (**288 passed, 1 skipped**) and static/source
+gates. Its populated-browser audit isolated one normal-color focus snapshot:
+the field was focused with a solid 3 px outline, but the immediately sampled
+outline color was the foreground rather than the CADER pink. Forced colors and
+the other **35 browser checks** passed, with no browser/runtime errors. The
+follow-up audit establishes page focus and actual keyboard navigation before
+sampling the rendered focus state; its exact pink/green/outline assertions stay
+in place. Captured CI evidence is retained under
+`artifacts/release-audit/github-browser-verification/`. The revised audit passed
+all **36 checks** locally; normal focus settled in **18 ms** and forced colors
+in **33 ms**. The evidence establishes the corrected test contract without
+claiming a confirmed Chromium root cause. No application/CSS/EXE changes were
+needed for either CI test correction.
+
 Normal desktop launches now exit after the last workbench tab closes, allowing
 four seconds for refresh/reconnection. Separate document leases preserve other
 tabs and minimized windows. Active mastering finishes before automatic exit;
@@ -67,7 +82,7 @@ Final local verification for this source candidate:
 |---|---|
 | Full regression and coverage | **288 passed, 1 skipped** (case-insensitive filesystem); **88.42%** against the 85% gate. `artifacts/tests/junit-all-20261002T232203073Z-65852.xml`; `artifacts/coverage/coverage-20261002T232203073Z-65852.xml`. |
 | Static quality | Ruff lint/format across **77 files**, strict mypy across **36 source files**, all passed. `artifacts/quality/sharing-final-20261002.log`. |
-| Populated browser workflows | **36/36 checks**, no runtime/browser errors or token leaks. `artifacts/ux-populated-smoke/20261002T232015677Z/verification-summary.json`. |
+| Populated browser workflows | **36/36 checks**, no runtime/browser errors or token leaks; actual keyboard focus and settled computed styles. `artifacts/ux-populated-smoke/20261002T235325173Z/verification-summary.json`. |
 | Source browser lifecycle | **24/24 checks**, including genuine refresh, canceled navigation, history restoration, delayed old close, multiple tabs, hidden/minimized polling, native window close, and retained library. `artifacts/browser-lifecycle-smoke/20261002T231959149Z/verification-summary.json`. |
 | Windows one-file build | CPython **3.11.7**, PyInstaller **6.22.0**, hooks **2026.8**, successful. `artifacts/windows-build/20261002T231957512Z/build.log`. |
 | Frozen audio/deployment | **11/11 checks**, actual upstream and weighted mixed-rate renders, original byte preservation, relocated EXE, unrelated cwd, isolated user data, system-only PATH, restart persistence, and token redaction. `artifacts/executable-smoke/20261002T232202883788Z/verification-summary.json`. |
