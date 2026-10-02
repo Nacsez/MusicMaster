@@ -146,6 +146,21 @@ again passed all **36 checks**, with zero runtime exceptions, browser error logs
 or retained launch-token leaks and graceful shutdown. The serialized audit JSON,
 including exception evidence, and caught error stacks are redacted before writing.
 
+The clean GitHub runner subsequently exposed an audit setup defect: the focus
+check used only programmatic `focus()` and sampled computed styles immediately,
+without establishing keyboard entry, document focus or a painted frame. Its
+normal-color snapshot reported the foreground color for the outline while the
+remaining 35 checks passed. The old evidence cannot distinguish browser paint
+timing from page-focus state. The audit now sends an actual Shift+Tab from the
+following control into the output field, establishes browser focus, awaits two
+animation frames and allows at most three seconds for the exact expected style.
+The pink outline, green action fill, 3 px width and visible keyboard focus remain
+strict requirements; a timeout preserves the last actual snapshot and fails.
+Browser version, document/pseudo-class focus, palette token and settling time are
+retained for diagnosis. Local regression
+`artifacts/ux-populated-smoke/20261002T235325173Z/` passed all **36 checks**;
+normal and forced-color snapshots settled in 18 ms and 33 ms, respectively.
+
 The checks exercise direct cross-track A/B candidate choices, keyboard swap
 with retained media/playhead, safe blank-slot clearing, nested source/version
 keyboard controls across rerenders, dialog Enter submission, Master queue
